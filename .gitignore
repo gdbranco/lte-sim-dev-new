@@ -1,6 +1,5 @@
 # Folders
 .ipynb_checkpoints/
-DEBUG/
 __pycache__
 OUT/
 # Compiled Object files
