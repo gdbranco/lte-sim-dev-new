@@ -76,7 +76,7 @@ static void SingleCellWithoutInterference(double radius,
 		srand(commonSeed);
 	}
 	else
-	{
+	{''
 		srand(time(NULL));
 	}
 	std::cout << "Simulation with SEED = " << seed << std::endl;
@@ -189,7 +189,7 @@ static void SingleCellWithoutInterference(double radius,
 
 		std::cout << "Created UE - id " << idUE << " position " << posX << " " << posY << std::endl;
 
-		ue->GetMobilityModel()->GetAbsolutePosition->Print();
+		ue->GetMobilityModel()->GetAbsolutePosition()->Print();
 		ue->GetPhy()->SetDlChannel(enb->GetPhy()->GetDlChannel());
 		ue->GetPhy()->SetUlChannel(enb->GetPhy()->GetUlChannel());
 
