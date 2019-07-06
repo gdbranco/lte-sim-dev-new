@@ -478,8 +478,5 @@ static void SingleCellWithoutInterference(double radius,
 	simulator->SetStop(duration);
 	//simulator->Schedule(duration-10, &Simulator::PrintMemoryUsage, simulator);
 	simulator->Run();
-	delete cell;
-	delete enb;
-	delete frameManager;
 	delete simulator;
 }
