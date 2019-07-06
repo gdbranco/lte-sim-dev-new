@@ -28,7 +28,7 @@
 
 
 /* path */
-static std::string path ("/e/Guilherme/Faculdade/Mestrado/lte-sim/lte-sim-dev_new/");
+static std::string path ("/home/linuxlite/Documents/lte-sim-dev-new/");
 
 
 /* tracing */

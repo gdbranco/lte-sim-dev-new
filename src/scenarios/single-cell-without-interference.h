@@ -76,7 +76,7 @@ static void SingleCellWithoutInterference(double radius,
 		srand(commonSeed);
 	}
 	else
-	{''
+	{
 		srand(time(NULL));
 	}
 	std::cout << "Simulation with SEED = " << seed << std::endl;
