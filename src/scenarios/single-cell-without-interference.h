@@ -46,23 +46,23 @@
 #include <iostream>
 #include <queue>
 #include <fstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 
 static void SingleCellWithoutInterference(double radius,
 										  int nbUE,
 										  int nbVoIP, int nbVideo, int nbBE, int nbCBR,
 										  int sched_type,
 										  int speed,
-										  double maxDelay, int videoBitRate,
-										  int seed)
+										  double maxDelay, int videoBitRate)
 {
 
 	// define simulation times
-	double duration = 220;
+	double duration = 100;
 	double flow_duration = 100;
 
-	double bandwidth = 20;
+	double bandwidth = 3;
 
 	// CREATE COMPONENT MANAGER
 	Simulator *simulator = Simulator::Init();
@@ -70,6 +70,7 @@ static void SingleCellWithoutInterference(double radius,
 	NetworkManager *networkManager = NetworkManager::Init();
 
 	// CONFIGURE SEED
+	int seed = -1;
 	if (seed >= 0)
 	{
 		int commonSeed = GetCommonSeed(seed);
@@ -185,7 +186,7 @@ static void SingleCellWithoutInterference(double radius,
 											  cell,
 											  enb,
 											  0, //handover false!
-											  Mobility::RANDOM_DIRECTION);
+											  Mobility::CONSTANT_POSITION);
 
 		std::cout << "Created UE - id " << idUE << " position " << posX << " " << posY << std::endl;
 
