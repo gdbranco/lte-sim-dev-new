@@ -112,10 +112,7 @@ int main (int argc, char *argv[])
 	      int speed = atoi(argv[9]);
 	      double maxDelay = atof(argv[10]);
 		  int video_bit_rate = atoi(argv[11]);
-	      int seed;
-	      if (argc==13) seed = atoi(argv[12]);
-	      else seed = -1;
-	      SingleCellWithoutInterference (radius, nbUE, nbVoIP, nbVideo, nbBE, nbCBR, sched_type, speed, maxDelay, video_bit_rate, seed);
+	      SingleCellWithoutInterference (radius, nbUE, nbVoIP, nbVideo, nbBE, nbCBR, sched_type, speed, maxDelay, video_bit_rate);
 	    }
 	  if (strcmp(argv[1], "SingleCellWithI")==0)
 	    {
