@@ -103,16 +103,16 @@ int main (int argc, char *argv[])
 	  if (strcmp(argv[1], "SingleCell")==0)
 	    {
 	      double radius = atof(argv[2]);
-	      int nbUE = atoi(argv[3]);
-	      int nbVoIP = atoi(argv[4]);
-	      int nbVideo = atoi(argv[5]);
-	      int nbBE = atoi(argv[6]);
-	      int nbCBR = atoi(argv[7]);
+		  int nbUE = atoi(argv[3]);
+		  double pVoIP = atof(argv[4]);
+		  double pVideo = atof(argv[5]);
+		  double pBE = atof(argv[6]);
+		  double pCBR = atof(argv[7]);
 	      int sched_type = atoi(argv[8]);
 	      int speed = atoi(argv[9]);
 	      double maxDelay = atof(argv[10]);
 		  int video_bit_rate = atoi(argv[11]);
-	      SingleCellWithoutInterference (radius, nbUE, nbVoIP, nbVideo, nbBE, nbCBR, sched_type, speed, maxDelay, video_bit_rate);
+	      SingleCellWithoutInterference (radius, nbUE, pVoIP, pVideo, pBE, pCBR, sched_type, speed, maxDelay, video_bit_rate);
 	    }
 	  if (strcmp(argv[1], "SingleCellWithI")==0)
 	    {

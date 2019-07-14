@@ -13,7 +13,7 @@ for del in 0.1 	#target delay
 do	
 for v in 3			#users speed
 do
-	../../LTE-Sim SingleCell 1 $ue 0 1 0 0 $sched $v $del 242 > TRACE/SCHED_${sched}_UE_${ue}_V_${v}_D_${del}_$_COUNT
+	../../LTE-Sim SingleCell 1 $ue .25 .25 .25 .25 $sched $v $del 242 > TRACE/SCHED_${sched}_UE_${ue}_V_${v}_D_${del}_$_COUNT
 	cd TRACE
 	gzip SCHED_${sched}_UE_${ue}_V_${v}_D_${del}_$_COUNT
 	cd ..
