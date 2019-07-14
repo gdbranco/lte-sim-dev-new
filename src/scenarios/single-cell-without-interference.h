@@ -44,11 +44,29 @@
 #include "../phy/simple-error-model.h"
 #include "../load-parameters.h"
 #include <iostream>
+#include <vector>
 #include <queue>
 #include <fstream>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
+#include <cmath>
+
+
+std::vector<int> chunks(int num, std::vector<double> p){
+  std::vector<int> a;
+  int left = num;
+  for(int i=0;i<p.size();i++){
+    double avg = num*p[i];
+    a.push_back((int)(avg));
+    left-=(int)(avg);
+  }
+  while(left){
+    a[left] += 1;
+    left--;
+  }
+  return a;
+}
 
 static void SingleCellWithoutInterference(double radius,
 										  int nbUE,
@@ -64,6 +82,8 @@ static void SingleCellWithoutInterference(double radius,
 		std::cout << "Number os users must be a multiple of 10";
 		return;
 	}
+	std::vector<double> p = {pVoIP, pVideo, pBE, pCBR};
+	std::vector<int> a = chunks(nbUE, p);
 	// define simulation times
 	double duration = 100;
 	double flow_duration = 100;
@@ -159,11 +179,10 @@ static void SingleCellWithoutInterference(double radius,
 
 	//Define Application Container
 	int nbCell = 1;
-	int nbVoipUE = pVoIP * nbUE;
-	int nbVideoUE = pVideo * nbUE;
-	int nbBeUE = pBE * nbUE;
-	int nbCbrUE = pCBR * nbUE;
-	std::cout << "VoIP: " << nbVoipUE << "\nVideo: " << nbVideoUE << "\nBE: " << nbBeUE << "\nCBR: " << nbCbrUE << std::endl;
+	int nbVoipUE = a[0];
+	int nbVideoUE = a[1];
+	int nbBeUE = a[2];
+	int nbCbrUE = a[3];
 	VoIP VoIPApplication[nbCell*nbVoipUE];
 	TraceBased VideoApplication[nbCell * nbVideoUE];
 	InfiniteBuffer BEApplication[nbCell * nbBeUE];
