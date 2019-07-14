@@ -52,12 +52,18 @@
 
 static void SingleCellWithoutInterference(double radius,
 										  int nbUE,
-										  int nbVoIP, int nbVideo, int nbBE, int nbCBR,
+										  double pVoIP, double pVideo, double pBE, double pCBR,
 										  int sched_type,
 										  int speed,
 										  double maxDelay, int videoBitRate)
 {
-
+	if((pVoIP + pVideo + pBE + pCBR)*100 != 100){
+		std::cout << "Percentages of flows must sum 1";
+		return;
+	}else if (nbUE % 10 != 0){
+		std::cout << "Number os users must be a multiple of 10";
+		return;
+	}
 	// define simulation times
 	double duration = 100;
 	double flow_duration = 100;
@@ -153,10 +159,14 @@ static void SingleCellWithoutInterference(double radius,
 
 	//Define Application Container
 	int nbCell = 1;
-	VoIP VoIPApplication[nbVoIP * nbCell * nbUE];
-	TraceBased VideoApplication[nbVideo * nbCell * nbUE];
-	InfiniteBuffer BEApplication[nbBE * nbCell * nbUE];
-	CBR CBRApplication[nbCBR * nbCell * nbUE];
+	int nbVoipUE = pVoIP * nbUE;
+	int nbVideoUE = pVideo * nbUE;
+	int nbBeUE = pBE * nbUE;
+	int nbCbrUE = pCBR * nbUE;
+	VoIP VoIPApplication[nbCell*nbVoipUE];
+	TraceBased VideoApplication[nbCell * nbVideoUE];
+	InfiniteBuffer BEApplication[nbCell * nbBeUE];
+	CBR CBRApplication[nbCell * nbCbrUE];
 	int voipApplication = 0;
 	int videoApplication = 0;
 	int cbrApplication = 0;
@@ -218,8 +228,7 @@ static void SingleCellWithoutInterference(double radius,
 		double duration_time = start_time + flow_duration;
 
 		// *** voip application
-		for (int j = 0; j < nbVoIP; j++)
-		{
+		if(i < nbVoipUE){
 			// create application
 			VoIPApplication[voipApplication].SetSource(gw);
 			VoIPApplication[voipApplication].SetDestination(ue);
@@ -296,8 +305,7 @@ static void SingleCellWithoutInterference(double radius,
 		}
 
 		// *** video application
-		for (int j = 0; j < nbVideo; j++)
-		{
+		if(i < (nbVoipUE + nbVideoUE) && i >= nbVoipUE){
 			// create application
 			VideoApplication[videoApplication].SetSource(gw);
 			VideoApplication[videoApplication].SetDestination(ue);
@@ -410,8 +418,7 @@ static void SingleCellWithoutInterference(double radius,
 		}
 
 		// *** be application
-		for (int j = 0; j < nbBE; j++)
-		{
+		if(i < (nbVoipUE + nbVideoUE + nbBeUE) && i >= (nbVoipUE + nbVideoUE)){
 			// create application
 			BEApplication[beApplication].SetSource(gw);
 			BEApplication[beApplication].SetDestination(ue);
@@ -440,8 +447,7 @@ static void SingleCellWithoutInterference(double radius,
 		}
 
 		// *** cbr application
-		for (int j = 0; j < nbCBR; j++)
-		{
+		if(i < (nbVoipUE + nbVideoUE + nbBeUE + nbCbrUE) && i >= (nbVoipUE + nbVideoUE + nbBeUE)){
 			// create application
 			CBRApplication[cbrApplication].SetSource(gw);
 			CBRApplication[cbrApplication].SetDestination(ue);
@@ -472,7 +478,6 @@ static void SingleCellWithoutInterference(double radius,
 			applicationID++;
 			cbrApplication++;
 		}
-
 		idUE++;
 	}
 
