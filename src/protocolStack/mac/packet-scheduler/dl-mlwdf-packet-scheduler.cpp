@@ -116,8 +116,6 @@ DL_MLWDF_PacketScheduler::ComputeSchedulingMetric (RadioBearer *bearer, double s
 #ifdef SCHEDULER_DEBUG
 	 std::cout << "METRIC: " << bearer->GetApplication ()->GetApplicationID ()
 			 << " " << a
-			 << " " << Simulator::Init()->Now()
-			 << " " << bearer->GetMacQueue()->Peek().GetTimeStamp()
 			 << " " << HOL
 			 << " " << spectralEfficiency
 			 << " " << bearer->GetAverageTransmissionRate ()
