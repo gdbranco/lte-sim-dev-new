@@ -163,6 +163,7 @@ static void SingleCellWithoutInterference(double radius,
 	int nbVideoUE = pVideo * nbUE;
 	int nbBeUE = pBE * nbUE;
 	int nbCbrUE = pCBR * nbUE;
+	std::cout << "VoIP: " << nbVoipUE << "\nVideo: " << nbVideoUE << "\nBE: " << nbBeUE << "\nCBR: " << nbCbrUE << std::endl;
 	VoIP VoIPApplication[nbCell*nbVoipUE];
 	TraceBased VideoApplication[nbCell * nbVideoUE];
 	InfiniteBuffer BEApplication[nbCell * nbBeUE];
