@@ -22,7 +22,6 @@ public:
 private:
 	bool m_runControlLaw;
 	int m_subFrameCounter;
-	int m_startPrbAllocation;
 	double m_avgHOLDelayes;
 };
 

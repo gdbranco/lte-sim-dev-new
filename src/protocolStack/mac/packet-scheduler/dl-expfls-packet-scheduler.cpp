@@ -20,7 +20,11 @@ DL_FLSEXP_PacketScheduler::DL_FLSEXP_PacketScheduler()
 	CreateFlowsToSchedule();
 	m_runControlLaw = true;
 	m_subFrameCounter = 0;
-	m_startPrbAllocation = 0;
+}
+
+DL_FLSEXP_PacketScheduler::~DL_FLSEXP_PacketScheduler()
+{
+  Destroy ();
 }
 
 void DL_FLSEXP_PacketScheduler::DoSchedule()
@@ -32,7 +36,6 @@ void DL_FLSEXP_PacketScheduler::DoSchedule()
 
 	UpdateDataToTransmitAndAverageDataRate();
 	CheckForDLDropPackets();
-	m_startPrbAllocation = 0;
 
 	m_subFrameCounter++;
 	if (m_runControlLaw)
