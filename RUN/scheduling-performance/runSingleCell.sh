@@ -5,7 +5,7 @@ _COUNT=1
 _NB_SEEDS=3
 
 until [ $_COUNT -gt $_NB_SEEDS ]; do
-for sched in 1 2 3 4 5 6 #scheduling algorithm
+for sched in 1 2 3 4 5 6 7 #scheduling algorithm
 do
 for ue in 10 20 30 40 50 #number of users
 do
