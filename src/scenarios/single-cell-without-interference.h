@@ -71,7 +71,7 @@ std::vector<int> chunks(int num, std::vector<double> p)
 }
 
 string selectTraceFile(string video_trace, int videoBitRate){
-	string retorno = NULL;
+	string retorno;
 	switch (videoBitRate)
 	{
 		case 128:
@@ -126,7 +126,7 @@ ENodeB::DLSchedulerType selectScheduler(int sched_type)
 
 QoSParameters *selectQosParameters(ENodeB::DLSchedulerType downlink_scheduler_type, double maxDelay)
 {
-	QoSParameters *qos = NULL;
+	QoSParameters *qos;
 	switch (downlink_scheduler_type)
 	{
 	case ENodeB::DLScheduler_TYPE_FLS:

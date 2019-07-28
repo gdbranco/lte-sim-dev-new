@@ -9,7 +9,7 @@ for sched in 1 2 3 4 5 6 #scheduling algorithm
 do
 for ue in 10 20 30 40 50 #number of users
 do
-for del in 0.1 	#target delay
+for del in .1 #target delay
 do	
 for v in 3			#users speed
 do
