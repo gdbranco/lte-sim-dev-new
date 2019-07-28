@@ -30,8 +30,8 @@ public:
 	WEB();
 	virtual ~WEB();
 
-	void DoStart (void);
-	void DoStop (void);
+	virtual void DoStart (void);
+	virtual void DoStop (void);
 
     void ScheduleTransmit (double time);
     void Send (void);

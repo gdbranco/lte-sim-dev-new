@@ -27,7 +27,7 @@
 #include "../protocolStack/packet/packet-burst.h"
 #include "../protocolStack/packet/Packet.h"
 #include "../core/eventScheduler/simulator.h"
-#include "../flows/application/InfiniteBuffer.h"
+#include "../flows/application/WEB.h"
 #include "../flows/application/VoIP.h"
 #include "../flows/application/CBR.h"
 #include "../flows/application/TraceBased.h"
@@ -173,12 +173,12 @@ QoSParameters *selectQosParameters(ENodeB::DLSchedulerType downlink_scheduler_ty
 
 static void SingleCellWithoutInterference(double radius,
 										  int nbUE,
-										  double pVoIP, double pVideo, double pBE, double pCBR,
+										  double pVoIP, double pVideo, double pWEB, double pCBR,
 										  int sched_type,
 										  int speed,
 										  double maxDelay, int videoBitRate)
 {
-	if ((pVoIP + pVideo + pBE + pCBR) * 100 != 100)
+	if ((pVoIP + pVideo + pWEB + pCBR) * 100 != 100)
 	{
 		std::cout << "Percentages of flows must sum 1";
 		return;
@@ -188,7 +188,7 @@ static void SingleCellWithoutInterference(double radius,
 		std::cout << "Number os users must be a multiple of 10";
 		return;
 	}
-	std::vector<double> p = {pVoIP, pVideo, pBE, pCBR};
+	std::vector<double> p = {pVoIP, pVideo, pWEB, pCBR};
 	std::vector<int> a = chunks(nbUE, p);
 	// define simulation times
 	double duration = 100;
@@ -257,16 +257,16 @@ static void SingleCellWithoutInterference(double radius,
 	int nbCell = 1;
 	int nbVoipUE = a[0];
 	int nbVideoUE = a[1];
-	int nbBeUE = a[2];
+	int nbWebUE = a[2];
 	int nbCbrUE = a[3];
 	VoIP VoIPApplication[nbCell * nbVoipUE];
 	TraceBased VideoApplication[nbCell * nbVideoUE];
-	InfiniteBuffer BEApplication[nbCell * nbBeUE];
+	WEB WEBApplication[nbCell * nbWebUE];
 	CBR CBRApplication[nbCell * nbCbrUE];
 	int voipApplication = 0;
 	int videoApplication = 0;
 	int cbrApplication = 0;
-	int beApplication = 0;
+	int WebApplication = 0;
 	int destinationPort = 101;
 	int applicationID = 0;
 
@@ -386,19 +386,19 @@ static void SingleCellWithoutInterference(double radius,
 			videoApplication++;
 		}
 
-		// *** be application
-		if (i < (nbVoipUE + nbVideoUE + nbBeUE) && i >= (nbVoipUE + nbVideoUE))
+		// *** web application
+		if (i < (nbVoipUE + nbVideoUE + nbWebUE) && i >= (nbVoipUE + nbVideoUE))
 		{
 			// create application
-			BEApplication[beApplication].SetSource(gw);
-			BEApplication[beApplication].SetDestination(ue);
-			BEApplication[beApplication].SetApplicationID(applicationID);
-			BEApplication[beApplication].SetStartTime(start_time);
-			BEApplication[beApplication].SetStopTime(duration_time);
+			WEBApplication[WebApplication].SetSource(gw);
+			WEBApplication[WebApplication].SetDestination(ue);
+			WEBApplication[WebApplication].SetApplicationID(applicationID);
+			WEBApplication[WebApplication].SetStartTime(start_time);
+			WEBApplication[WebApplication].SetStopTime(duration_time);
 
 			// create qos parameters
 			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelay);
-			BEApplication[beApplication].SetQoSParameters(qosParameters);
+			WEBApplication[WebApplication].SetQoSParameters(qosParameters);
 
 			//create classifier parameters
 			ClassifierParameters *cp = new ClassifierParameters(gw->GetIDNetworkNode(),
@@ -406,18 +406,18 @@ static void SingleCellWithoutInterference(double radius,
 																0,
 																destinationPort,
 																TransportProtocol::TRANSPORT_PROTOCOL_TYPE_UDP);
-			BEApplication[beApplication].SetClassifierParameters(cp);
+			WEBApplication[WebApplication].SetClassifierParameters(cp);
 
-			std::cout << "CREATED BE APPLICATION, ID " << applicationID << std::endl;
+			std::cout << "CREATED WEB APPLICATION, ID " << applicationID << std::endl;
 
 			//update counter
 			destinationPort++;
 			applicationID++;
-			beApplication++;
+			WebApplication++;
 		}
 
 		// *** cbr application
-		if (i < (nbVoipUE + nbVideoUE + nbBeUE + nbCbrUE) && i >= (nbVoipUE + nbVideoUE + nbBeUE))
+		if (i < (nbVoipUE + nbVideoUE + nbWebUE + nbCbrUE) && i >= (nbVoipUE + nbVideoUE + nbWebUE))
 		{
 			// create application
 			CBRApplication[cbrApplication].SetSource(gw);

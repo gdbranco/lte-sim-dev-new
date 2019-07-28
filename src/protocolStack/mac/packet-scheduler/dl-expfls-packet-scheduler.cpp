@@ -121,14 +121,18 @@ double DL_FLSEXP_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, d
 {
 	double metric;
 
-	QoSParameters *qos = bearer->GetQoSParameters();
-	double HOL = bearer->GetHeadOfLinePacketDelay();
-	double targetDelay = qos->GetMaxDelay();
+	if(bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER){
+		QoSParameters *qos = bearer->GetQoSParameters();
+		double HOL = bearer->GetHeadOfLinePacketDelay();
+		double targetDelay = qos->GetMaxDelay();
 
-	double numerator = (6 / targetDelay) * HOL;
-	double denominator = (1 + sqrt(m_avgHOLDelayes));
-	double weight = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
-	metric = (exp(numerator / denominator)) * weight;
+		double numerator = (6 / targetDelay) * HOL;
+		double denominator = (1 + sqrt(m_avgHOLDelayes));
+		double weight = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
+		metric = (exp(numerator / denominator)) * weight;
+	}else{
+		metric = (spectralEfficiency * 180000.)/bearer->GetAverageTransmissionRate();
+	}
 	return metric;
 }
 
@@ -145,8 +149,11 @@ double DL_FLSEXP_PacketScheduler::ComputeAverageOfHOLDelays(void)
 		flow = (*iter);
 		if (flow->GetBearer()->HasPackets())
 		{
-			avgHOL += flow->GetBearer()->GetHeadOfLinePacketDelay();
-			nbFlows++;
+			if(flow->GetBearer ()->GetApplication ()->GetApplicationType () != Application::APPLICATION_TYPE_INFINITE_BUFFER)
+			{
+			  avgHOL += flow->GetBearer ()->GetHeadOfLinePacketDelay ();
+			  nbFlows++;
+			}
 		}
 	}
 	return avgHOL / nbFlows;

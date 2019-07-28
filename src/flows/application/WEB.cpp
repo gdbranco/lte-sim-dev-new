@@ -24,6 +24,7 @@
 //#include "../../componentManagers/NetworkManager.h"
 #include "../radio-bearer.h"
 #include <math.h>
+#include <ctime>
 
 
 int arrival;
@@ -180,17 +181,13 @@ int Random::Poisson(double lamda){
 }// end of Poisson()
 WEB::WEB()
 {
-  /*
-   * G729 codec generates during the ON period a packet with
-   * a fixed size (20 bytes). We must add the RTP header (12 bytes)
-   */
-  m_size = Ran.Pareto(1.1,81.5);
-        if (m_size > 66666)
-        {
-         m_size = 66666;
-        }
-  m_stateON = false;
-  SetApplicationType (Application::APPLICATION_TYPE_WEB);
+	m_size = Ran.Pareto(1.1, 81.5);
+	if (m_size > 66666)
+	{
+		m_size = 66666;
+	}
+	m_stateON = false;
+	SetApplicationType(Application::APPLICATION_TYPE_WEB);
 }
 
 WEB::~WEB()
