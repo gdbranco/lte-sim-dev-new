@@ -8,12 +8,14 @@ class DL_FLSEXP_PacketScheduler : public DownlinkPacketScheduler {
 public:
 	DL_FLSEXP_PacketScheduler();
 	virtual ~DL_FLSEXP_PacketScheduler();
+
 	virtual void DoSchedule (void);
 	virtual void DoStopSchedule (void);
 	void RunControlLaw ();
 	virtual double ComputeSchedulingMetric (RadioBearer *bearer, double spectralEfficiency, int subChannel);
 	double ComputeAverageOfHOLDelays (void);
-	virtual void Select_FlowsToSchedule ();
+
+	void Select_FlowsToSchedule ();
 	void UpdateDataToTransmitAndAverageDataRate (void);
 
 
