@@ -52,20 +52,123 @@
 #include <ctime>
 #include <cmath>
 
+std::vector<int> chunks(int num, std::vector<double> p)
+{
+	std::vector<int> a;
+	int left = num;
+	for (int i = 0; i < p.size(); i++)
+	{
+		double avg = num * p[i];
+		a.push_back((int)(avg));
+		left -= (int)(avg);
+	}
+	while (left)
+	{
+		a[left] += 1;
+		left--;
+	}
+	return a;
+}
 
-std::vector<int> chunks(int num, std::vector<double> p){
-  std::vector<int> a;
-  int left = num;
-  for(int i=0;i<p.size();i++){
-    double avg = num*p[i];
-    a.push_back((int)(avg));
-    left-=(int)(avg);
-  }
-  while(left){
-    a[left] += 1;
-    left--;
-  }
-  return a;
+string selectTraceFile(string video_trace, int videoBitRate){
+	string retorno = NULL;
+	switch (videoBitRate)
+	{
+		case 128:
+			retorno = path + "src/flows/application/Trace/" + video_trace + "128k.dat";
+			std::cout << "		selected video @ 128k" << std::endl;
+			break;
+		case 242:
+			retorno = path + "src/flows/application/Trace/" + video_trace + "242k.dat";
+			std::cout << "		selected video @ 242k" << std::endl;
+			break;
+		case 440:
+			retorno = path + "src/flows/application/Trace/" + video_trace + "440k.dat";
+			std::cout << "		selected video @ 440k" << std::endl;
+			break;
+		default:
+			retorno = path + "src/flows/application/Trace/" + video_trace + "128k.dat";
+			std::cout << "		selected video @ 128k as default" << std::endl;
+			break;
+	}
+	return retorno;
+}
+
+ENodeB::DLSchedulerType selectScheduler(int sched_type)
+{
+	switch (sched_type)
+	{
+	case 1:
+		std::cout << "Scheduler PF " << std::endl;
+		return ENodeB::DLScheduler_TYPE_PROPORTIONAL_FAIR;
+	case 2:
+		std::cout << "Scheduler MLWDF " << std::endl;
+		return ENodeB::DLScheduler_TYPE_MLWDF;
+	case 3:
+		std::cout << "Scheduler EXP " << std::endl;
+		return ENodeB::DLScheduler_TYPE_EXP;
+	case 4:
+		std::cout << "Scheduler FLS " << std::endl;
+		return ENodeB::DLScheduler_TYPE_FLS;
+	case 5:
+		std::cout << "Scheduler EXP_RULE " << std::endl;
+		return ENodeB::DLScheduler_EXP_RULE;
+	case 6:
+		std::cout << "Scheduler LOG RULE " << std::endl;
+		return ENodeB::DLScheduler_LOG_RULE;
+	case 7:
+		std::cout << "Scheduler FLS_EXP " << std::endl;
+		return ENodeB::DLScheduler_FLSEXP;
+	default:
+		return ENodeB::DLScheduler_TYPE_PROPORTIONAL_FAIR;
+	}
+}
+
+QoSParameters *selectQosParameters(ENodeB::DLSchedulerType downlink_scheduler_type, double maxDelay)
+{
+	QoSParameters *qos = NULL;
+	switch (downlink_scheduler_type)
+	{
+	case ENodeB::DLScheduler_TYPE_FLS:
+	case ENodeB::DLScheduler_FLSEXP:
+		qos = new QoSForFLS();
+		if (maxDelay == 0.1)
+		{
+			std::cout << "Target Delay = 0.1 s, M = 9" << std::endl;
+			((QoSForFLS *)qos)->SetNbOfCoefficients(9);
+		}
+		else if (maxDelay == 0.08)
+		{
+			std::cout << "Target Delay = 0.08 s, M = 7" << std::endl;
+			((QoSForFLS *)qos)->SetNbOfCoefficients(7);
+		}
+		else if (maxDelay == 0.06)
+		{
+			std::cout << "Target Delay = 0.06 s, M = 5" << std::endl;
+			((QoSForFLS *)qos)->SetNbOfCoefficients(5);
+		}
+		else if (maxDelay == 0.04)
+		{
+			std::cout << "Target Delay = 0.04 s, M = 3" << std::endl;
+			((QoSForFLS *)qos)->SetNbOfCoefficients(3);
+		}
+		else
+		{
+			std::cout << "ERROR: target delay is not available" << std::endl;
+		}
+		break;
+	case ENodeB::DLScheduler_TYPE_MAXIMUM_THROUGHPUT:
+		qos = new QoSForM_LWDF();
+		break;
+	case ENodeB::DLScheduler_TYPE_EXP:
+		qos = new QoSForEXP();
+		break;
+	default:
+		qos = new QoSParameters();
+		break;
+	}
+	qos->SetMaxDelay(maxDelay);
+	return qos;
 }
 
 static void SingleCellWithoutInterference(double radius,
@@ -75,10 +178,13 @@ static void SingleCellWithoutInterference(double radius,
 										  int speed,
 										  double maxDelay, int videoBitRate)
 {
-	if((pVoIP + pVideo + pBE + pCBR)*100 != 100){
+	if ((pVoIP + pVideo + pBE + pCBR) * 100 != 100)
+	{
 		std::cout << "Percentages of flows must sum 1";
 		return;
-	}else if (nbUE % 10 != 0){
+	}
+	else if (nbUE % 10 != 0)
+	{
 		std::cout << "Number os users must be a multiple of 10";
 		return;
 	}
@@ -109,37 +215,7 @@ static void SingleCellWithoutInterference(double radius,
 	std::cout << "Simulation with SEED = " << seed << std::endl;
 
 	// SET SCHEDULING ALLOCATION SCHEME
-	ENodeB::DLSchedulerType downlink_scheduler_type;
-	switch (sched_type)
-	{
-	case 1:
-		downlink_scheduler_type = ENodeB::DLScheduler_TYPE_PROPORTIONAL_FAIR;
-		std::cout << "Scheduler PF " << std::endl;
-		break;
-	case 2:
-		downlink_scheduler_type = ENodeB::DLScheduler_TYPE_MLWDF;
-		std::cout << "Scheduler MLWDF " << std::endl;
-		break;
-	case 3:
-		downlink_scheduler_type = ENodeB::DLScheduler_TYPE_EXP;
-		std::cout << "Scheduler EXP " << std::endl;
-		break;
-	case 4:
-		downlink_scheduler_type = ENodeB::DLScheduler_TYPE_FLS;
-		std::cout << "Scheduler FLS " << std::endl;
-		break;
-	case 5:
-		downlink_scheduler_type = ENodeB::DLScheduler_EXP_RULE;
-		std::cout << "Scheduler EXP_RULE " << std::endl;
-		break;
-	case 6:
-		downlink_scheduler_type = ENodeB::DLScheduler_LOG_RULE;
-		std::cout << "Scheduler LOG RULE " << std::endl;
-		break;
-	default:
-		downlink_scheduler_type = ENodeB::DLScheduler_TYPE_PROPORTIONAL_FAIR;
-		break;
-	}
+	ENodeB::DLSchedulerType downlink_scheduler_type = selectScheduler(sched_type);
 
 	// SET FRAME STRUCTURE
 	frameManager->SetFrameStructure(FrameManager::FRAME_STRUCTURE_FDD);
@@ -183,7 +259,7 @@ static void SingleCellWithoutInterference(double radius,
 	int nbVideoUE = a[1];
 	int nbBeUE = a[2];
 	int nbCbrUE = a[3];
-	VoIP VoIPApplication[nbCell*nbVoipUE];
+	VoIP VoIPApplication[nbCell * nbVoipUE];
 	TraceBased VideoApplication[nbCell * nbVideoUE];
 	InfiniteBuffer BEApplication[nbCell * nbBeUE];
 	CBR CBRApplication[nbCell * nbCbrUE];
@@ -209,7 +285,7 @@ static void SingleCellWithoutInterference(double radius,
 		double posY = (double)rand() / RAND_MAX;
 		posY = 0.95 *
 			   (((2 * radius * 1000) * posY) - (radius * 1000));
-		double speedDirection =  GetRandomVariable(360.) * ((2 * 3.14) / 360);
+		double speedDirection = GetRandomVariable(360.) * ((2 * 3.14) / 360);
 
 		UserEquipment *ue = new UserEquipment(idUE,
 											  posX, posY, speed, speedDirection,
@@ -248,7 +324,8 @@ static void SingleCellWithoutInterference(double radius,
 		double duration_time = start_time + flow_duration;
 
 		// *** voip application
-		if(i < nbVoipUE){
+		if (i < nbVoipUE)
+		{
 			// create application
 			VoIPApplication[voipApplication].SetSource(gw);
 			VoIPApplication[voipApplication].SetDestination(ue);
@@ -257,57 +334,8 @@ static void SingleCellWithoutInterference(double radius,
 			VoIPApplication[voipApplication].SetStopTime(duration_time);
 
 			// create qos parameters
-			if (downlink_scheduler_type == ENodeB::DLScheduler_TYPE_FLS)
-			{
-				QoSForFLS *qos = new QoSForFLS();
-				qos->SetMaxDelay(maxDelay);
-				if (maxDelay == 0.1)
-				{
-					std::cout << "Target Delay = 0.1 s, M = 9" << std::endl;
-					qos->SetNbOfCoefficients(9);
-				}
-				else if (maxDelay == 0.08)
-				{
-					std::cout << "Target Delay = 0.08 s, M = 7" << std::endl;
-					qos->SetNbOfCoefficients(7);
-				}
-				else if (maxDelay == 0.06)
-				{
-					std::cout << "Target Delay = 0.06 s, M = 5" << std::endl;
-					qos->SetNbOfCoefficients(5);
-				}
-				else if (maxDelay == 0.04)
-				{
-					std::cout << "Target Delay = 0.04 s, M = 3" << std::endl;
-					qos->SetNbOfCoefficients(3);
-				}
-				else
-				{
-					std::cout << "ERROR: target delay is not available" << std::endl;
-					return;
-				}
-
-				VoIPApplication[voipApplication].SetQoSParameters(qos);
-			}
-			else if (downlink_scheduler_type == ENodeB::DLScheduler_TYPE_EXP)
-			{
-				QoSForEXP *qos = new QoSForEXP();
-				qos->SetMaxDelay(maxDelay);
-				VoIPApplication[voipApplication].SetQoSParameters(qos);
-			}
-			else if (downlink_scheduler_type == ENodeB::DLScheduler_TYPE_MLWDF)
-			{
-				QoSForM_LWDF *qos = new QoSForM_LWDF();
-				qos->SetMaxDelay(maxDelay);
-				VoIPApplication[voipApplication].SetQoSParameters(qos);
-			}
-			else
-			{
-				QoSParameters *qos = new QoSParameters();
-				qos->SetMaxDelay(maxDelay);
-				VoIPApplication[voipApplication].SetQoSParameters(qos);
-			}
-
+			QoSParameters *qos = selectQosParameters(downlink_scheduler_type, maxDelay);
+			VoIPApplication[voipApplication].SetQoSParameters(qos);
 			//create classifier parameters
 			ClassifierParameters *cp = new ClassifierParameters(gw->GetIDNetworkNode(),
 																ue->GetIDNetworkNode(),
@@ -325,7 +353,8 @@ static void SingleCellWithoutInterference(double radius,
 		}
 
 		// *** video application
-		if(i < (nbVoipUE + nbVideoUE) && i >= nbVoipUE){
+		if (i < (nbVoipUE + nbVideoUE) && i >= nbVoipUE)
+		{
 			// create application
 			VideoApplication[videoApplication].SetSource(gw);
 			VideoApplication[videoApplication].SetDestination(ue);
@@ -336,91 +365,11 @@ static void SingleCellWithoutInterference(double radius,
 			string video_trace("foreman_H264_");
 			//string video_trace ("highway_H264_");
 			//string video_trace ("mobile_H264_");
-
-			switch (videoBitRate)
-			{
-			case 128:
-			{
-				string _file(path + "src/flows/application/Trace/" + video_trace + "128k.dat");
-				VideoApplication[videoApplication].SetTraceFile(_file);
-				std::cout << "		selected video @ 128k" << std::endl;
-				break;
-			}
-			case 242:
-			{
-				string _file(path + "src/flows/application/Trace/" + video_trace + "242k.dat");
-				VideoApplication[videoApplication].SetTraceFile(_file);
-				std::cout << "		selected video @ 242k" << std::endl;
-				break;
-			}
-			case 440:
-			{
-				string _file(path + "src/flows/application/Trace/" + video_trace + "440k.dat");
-				VideoApplication[videoApplication].SetTraceFile(_file);
-				std::cout << "		selected video @ 440k" << std::endl;
-				break;
-			}
-			default:
-			{
-				string _file(path + "src/flows/application/Trace/" + video_trace + "128k.dat");
-				VideoApplication[videoApplication].SetTraceFile(_file);
-				std::cout << "		selected video @ 128k as default" << std::endl;
-				break;
-			}
-			}
-
+			string _file(selectTraceFile(video_trace, videoBitRate));
+			VideoApplication[videoApplication].SetTraceFile(_file);
 			// create qos parameters
-			if (downlink_scheduler_type == ENodeB::DLScheduler_TYPE_FLS)
-			{
-				QoSForFLS *qos = new QoSForFLS();
-				qos->SetMaxDelay(maxDelay);
-				if (maxDelay == 0.1)
-				{
-					std::cout << "Target Delay = 0.1 s, M = 9" << std::endl;
-					qos->SetNbOfCoefficients(9);
-				}
-				else if (maxDelay == 0.08)
-				{
-					std::cout << "Target Delay = 0.08 s, M = 7" << std::endl;
-					qos->SetNbOfCoefficients(7);
-				}
-				else if (maxDelay == 0.06)
-				{
-					std::cout << "Target Delay = 0.06 s, M = 5" << std::endl;
-					qos->SetNbOfCoefficients(5);
-				}
-				else if (maxDelay == 0.04)
-				{
-					std::cout << "Target Delay = 0.04 s, M = 3" << std::endl;
-					qos->SetNbOfCoefficients(3);
-				}
-				else
-				{
-					std::cout << "ERROR: target delay is not available" << std::endl;
-					return;
-				}
-
-				VideoApplication[videoApplication].SetQoSParameters(qos);
-			}
-			else if (downlink_scheduler_type == ENodeB::DLScheduler_TYPE_EXP)
-			{
-				QoSForEXP *qos = new QoSForEXP();
-				qos->SetMaxDelay(maxDelay);
-				VideoApplication[videoApplication].SetQoSParameters(qos);
-			}
-			else if (downlink_scheduler_type == ENodeB::DLScheduler_TYPE_MLWDF)
-			{
-				QoSForM_LWDF *qos = new QoSForM_LWDF();
-				qos->SetMaxDelay(maxDelay);
-				VideoApplication[videoApplication].SetQoSParameters(qos);
-			}
-			else
-			{
-				QoSParameters *qos = new QoSParameters();
-				qos->SetMaxDelay(maxDelay);
-				VideoApplication[videoApplication].SetQoSParameters(qos);
-			}
-
+			QoSParameters* qos = selectQosParameters(downlink_scheduler_type, maxDelay);
+			VideoApplication[videoApplication].SetQoSParameters(qos);
 			//create classifier parameters
 			ClassifierParameters *cp = new ClassifierParameters(gw->GetIDNetworkNode(),
 																ue->GetIDNetworkNode(),
@@ -438,7 +387,8 @@ static void SingleCellWithoutInterference(double radius,
 		}
 
 		// *** be application
-		if(i < (nbVoipUE + nbVideoUE + nbBeUE) && i >= (nbVoipUE + nbVideoUE)){
+		if (i < (nbVoipUE + nbVideoUE + nbBeUE) && i >= (nbVoipUE + nbVideoUE))
+		{
 			// create application
 			BEApplication[beApplication].SetSource(gw);
 			BEApplication[beApplication].SetDestination(ue);
@@ -447,7 +397,7 @@ static void SingleCellWithoutInterference(double radius,
 			BEApplication[beApplication].SetStopTime(duration_time);
 
 			// create qos parameters
-			QoSParameters *qosParameters = new QoSParameters();
+			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelay);
 			BEApplication[beApplication].SetQoSParameters(qosParameters);
 
 			//create classifier parameters
@@ -467,7 +417,8 @@ static void SingleCellWithoutInterference(double radius,
 		}
 
 		// *** cbr application
-		if(i < (nbVoipUE + nbVideoUE + nbBeUE + nbCbrUE) && i >= (nbVoipUE + nbVideoUE + nbBeUE)){
+		if (i < (nbVoipUE + nbVideoUE + nbBeUE + nbCbrUE) && i >= (nbVoipUE + nbVideoUE + nbBeUE))
+		{
 			// create application
 			CBRApplication[cbrApplication].SetSource(gw);
 			CBRApplication[cbrApplication].SetDestination(ue);
@@ -478,9 +429,7 @@ static void SingleCellWithoutInterference(double radius,
 			CBRApplication[cbrApplication].SetSize(5);
 
 			// create qos parameters
-			QoSParameters *qosParameters = new QoSParameters();
-			qosParameters->SetMaxDelay(maxDelay);
-
+			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelay);
 			CBRApplication[cbrApplication].SetQoSParameters(qosParameters);
 
 			//create classifier parameters
@@ -502,7 +451,6 @@ static void SingleCellWithoutInterference(double radius,
 	}
 
 	simulator->SetStop(duration);
-	//simulator->Schedule(duration-10, &Simulator::PrintMemoryUsage, simulator);
 	simulator->Run();
 	delete simulator;
 }
