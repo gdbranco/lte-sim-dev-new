@@ -4,10 +4,10 @@
 #include "downlink-packet-scheduler.h"
 
 
-class DL_FLS_PacketScheduler : public DownlinkPacketScheduler {
+class DL_FLSEXP_PacketScheduler : public DownlinkPacketScheduler {
 public:
-	DL_FLS_PacketScheduler();
-	virtual ~DL_FLS_PacketScheduler();
+	DL_FLSEXP_PacketScheduler();
+	virtual ~DL_FLSEXP_PacketScheduler();
 	virtual void DoSchedule (void);
 	virtual void DoStopSchedule (void);
 	void RunControlLaw ();

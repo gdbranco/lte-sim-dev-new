@@ -14,7 +14,7 @@
 #include "../../../flows/MacQueue.h"
 #include "../../../utility/eesm-effective-sinr.h"
 
-DL_FLS_PacketScheduler::DL_FLS_PacketScheduler()
+DL_FLSEXP_PacketScheduler::DL_FLSEXP_PacketScheduler()
 {
 	SetMacEntity(0);
 	CreateFlowsToSchedule();
@@ -23,7 +23,7 @@ DL_FLS_PacketScheduler::DL_FLS_PacketScheduler()
 	m_startPrbAllocation = 0;
 }
 
-void DL_FLS_PacketScheduler::DoSchedule()
+void DL_FLSEXP_PacketScheduler::DoSchedule()
 {
 #ifdef SCHEDULER_DEBUG
 	std::cout << "Start DL packet (FLS) scheduler for node "
@@ -55,7 +55,7 @@ void DL_FLS_PacketScheduler::DoSchedule()
 	StopSchedule();
 }
 
-void DL_FLS_PacketScheduler::DoStopSchedule(void)
+void DL_FLSEXP_PacketScheduler::DoStopSchedule(void)
 {
 #ifdef SCHEDULER_DEBUG
 	std::cout << "\t Do Stop Schedule (FLS) Creating Packet Burst" << std::endl;
@@ -114,7 +114,7 @@ void DL_FLS_PacketScheduler::DoStopSchedule(void)
 	GetMacEntity()->GetDevice()->SendPacketBurst(pb);
 }
 
-double DL_FLS_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel)
+double DL_FLSEXP_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel)
 {
 	double metric;
 
@@ -129,7 +129,7 @@ double DL_FLS_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, doub
 	return metric;
 }
 
-double DL_FLS_PacketScheduler::ComputeAverageOfHOLDelays(void)
+double DL_FLSEXP_PacketScheduler::ComputeAverageOfHOLDelays(void)
 {
 	double avgHOL = 0.;
 	int nbFlows = 0;
@@ -149,7 +149,7 @@ double DL_FLS_PacketScheduler::ComputeAverageOfHOLDelays(void)
 	return avgHOL / nbFlows;
 }
 
-void DL_FLS_PacketScheduler::RunControlLaw()
+void DL_FLSEXP_PacketScheduler::RunControlLaw()
 {
 	m_runControlLaw = false;
 	RrcEntity *rrc = GetMacEntity()->GetDevice()->GetProtocolStack()->GetRrcEntity();
@@ -208,7 +208,7 @@ void DL_FLS_PacketScheduler::RunControlLaw()
 	}
 }
 
-void DL_FLS_PacketScheduler::Select_FlowsToSchedule()
+void DL_FLSEXP_PacketScheduler::Select_FlowsToSchedule()
 {
 	ClearFlowsToSchedule();
 
@@ -258,7 +258,7 @@ void DL_FLS_PacketScheduler::Select_FlowsToSchedule()
 	}
 }
 
-void DL_FLS_PacketScheduler::UpdateDataToTransmitAndAverageDataRate(void)
+void DL_FLSEXP_PacketScheduler::UpdateDataToTransmitAndAverageDataRate(void)
 {
 	RrcEntity *rrc = GetMacEntity()->GetDevice()->GetProtocolStack()->GetRrcEntity();
 	RrcEntity::RadioBearersContainer *bearers = rrc->GetRadioBearerContainer();
