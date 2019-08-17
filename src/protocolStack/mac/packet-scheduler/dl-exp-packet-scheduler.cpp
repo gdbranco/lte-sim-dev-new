@@ -79,42 +79,31 @@ DL_EXP_PacketScheduler::ComputeSchedulingMetric (RadioBearer *bearer, double spe
    * metric = exp ( --------------------------------------------) * availableRate/averageRate
    *                            1 - sqrt (aW)
    */
-
+  Application::ApplicationType app = bearer->GetApplication ()->GetApplicationType ();
+  
   double metric;
+  switch (app)
+  {
+  case Application::APPLICATION_TYPE_CBR:
+  case Application::APPLICATION_TYPE_INFINITE_BUFFER:
+  case Application::APPLICATION_TYPE_WEB:
+	   metric = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
+	  break;
 
-  if ((bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_INFINITE_BUFFER)
-	  ||
-	  (bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_CBR))
-    {
-	  metric = (spectralEfficiency * 180000.)
-				/
-	    	    bearer->GetAverageTransmissionRate();
-    }
-  else
-    {
-
-     QoSForEXP *qos = (QoSForEXP*) bearer->GetQoSParameters ();
-
-	 double HOL = bearer->GetHeadOfLinePacketDelay ();
-     double alfa = -log10(qos->GetDropProbability()) / qos->GetMaxDelay ();
-     double avgAW = GetAW ();
-	 double AW = alfa * HOL;
-
-	  if (AW < 0.000001)
-		  AW=0;
-
-	  double AW_avgAW = AW - avgAW;
-
-	  if (AW_avgAW < 0.000001)
-		  AW_avgAW=0;
-
-	  metric = exp ( AW_avgAW /
-					 (1 + sqrt (GetAW ())) )
-	               *
-	               ((spectralEfficiency * 180000.)
-	               /
-	               bearer->GetAverageTransmissionRate());
-    }
+  default:
+		QoSForEXP *qos = (QoSForEXP*) bearer->GetQoSParameters ();
+		double HOL = bearer->GetHeadOfLinePacketDelay ();
+		double alfa = -log10(qos->GetDropProbability()) / qos->GetMaxDelay ();
+		double avgAW = GetAW ();
+		double AW = alfa * HOL;
+		if (AW < 0.000001)
+			AW=0;
+		double AW_avgAW = AW - avgAW;
+		if (AW_avgAW < 0.000001)
+			AW_avgAW=0;
+		metric = exp ( AW_avgAW / (1 + sqrt (GetAW ())) ) * ((spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate());
+		break;
+  }
 
   return metric;
 }

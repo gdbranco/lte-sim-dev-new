@@ -738,6 +738,8 @@ AmRlcEntity::CheckForDropPackets (double maxDelay, int bearerID)
 				   std::cout << " CBR";
 				 else if (amdRecord->m_packet->GetPacketTags()->GetApplicationType() == PacketTAGs::APPLICATION_TYPE_INFINITE_BUFFER)
 				   std::cout << " INF_BUF";
+				 else if (amdRecord->m_packet->GetPacketTags()->GetApplicationType == PacketTAGs::APPLICATION_TYPE_WEB)
+				   std::cout << " WEB";
 				 else
 				   std::cout << " UNKNOW";
 

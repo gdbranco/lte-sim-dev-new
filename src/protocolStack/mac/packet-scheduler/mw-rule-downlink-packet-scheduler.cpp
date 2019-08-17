@@ -59,7 +59,8 @@ MwRulePacketScheduler::ComputeSchedulingMetric (RadioBearer *bearer, double spec
 
   if ((bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_INFINITE_BUFFER)
 	  ||
-	  (bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_CBR))
+	  (bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_CBR)
+	  ||(bearer->GetApplication()->GetApplicationType() == Application::APPLICATION_TYPE_WEB))
 	{
 	  metric = (spectralEfficiency * 180000.)
 				/
@@ -102,7 +103,10 @@ MwRulePacketScheduler::ComputeSchedulingMetric (RadioBearer *bearer, double spec
 					  != Application::APPLICATION_TYPE_INFINITE_BUFFER)
 			   		  &&
 			          (flow->GetBearer ()->GetApplication ()->GetApplicationType ()
-			        		  != Application::APPLICATION_TYPE_CBR))
+			        		  != Application::APPLICATION_TYPE_CBR)
+					   &&
+					   (flow->GetBearer()->GetApplication()->GetApplicationType()
+					   		!= Application::APPLICATION_TYPE_WEB))
 			    {
 			      sumHOL += flow->GetBearer ()->GetHeadOfLinePacketDelay ();
 			      nbFlows++;

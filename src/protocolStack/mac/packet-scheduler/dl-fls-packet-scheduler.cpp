@@ -382,7 +382,9 @@ DL_FLS_PacketScheduler::Select_NRT_FlowsToSchedule ()
 			  &&
 			      (bearer->GetApplication ()->GetApplicationType() == Application::APPLICATION_TYPE_CBR
 			       ||
-			       bearer->GetApplication ()->GetApplicationType() == Application::APPLICATION_TYPE_INFINITE_BUFFER ))
+			       bearer->GetApplication ()->GetApplicationType() == Application::APPLICATION_TYPE_INFINITE_BUFFER )
+				   ||
+				   bearer->GetApplication ()->GetApplicationType() == Application::APPLICATION_TYPE_WEB)
 		{
 
 		  //compute data to transmit
@@ -412,8 +414,6 @@ DL_FLS_PacketScheduler::Select_NRT_FlowsToSchedule ()
 		  //create flow to schedule record
 		  InsertFlowToSchedule(bearer, dataToTransmit, spectralEfficiency, cqiFeedbacks);
 		}
-	  else
-	    {}
 	}
 }
 

@@ -75,18 +75,17 @@ double
 LogRuleDownlinkPacketScheduler::ComputeSchedulingMetric (RadioBearer *bearer, double spectralEfficiency, int subChannel)
 {
   double metric;
+	Application::ApplicationType app = bearer->GetApplication ()->GetApplicationType ();
+	switch (app)
+	{
+	case Application::APPLICATION_TYPE_CBR:
+	case Application::APPLICATION_TYPE_INFINITE_BUFFER:
+	case Application::APPLICATION_TYPE_WEB:
+		metric = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
+		break;
 
-  if ((bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_INFINITE_BUFFER)
-	  ||
-	  (bearer->GetApplication ()->GetApplicationType () == Application::APPLICATION_TYPE_CBR))
-	{
-	  metric = (spectralEfficiency * 180000.)
-				/
-				bearer->GetAverageTransmissionRate();
-	}
-  else
-	{
-	   QoSParameters *qos = bearer->GetQoSParameters ();
+	default:
+		QoSParameters *qos = bearer->GetQoSParameters ();
 	   double HOL = bearer->GetHeadOfLinePacketDelay ();
 	   double targetDelay = qos->GetMaxDelay ();
 
@@ -97,6 +96,7 @@ LogRuleDownlinkPacketScheduler::ComputeSchedulingMetric (RadioBearer *bearer, do
 	    	           bearer->GetAverageTransmissionRate();
 
   	   metric = logTerm * weight;
+		break;
 	}
 
   return metric;
