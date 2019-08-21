@@ -342,10 +342,16 @@ ENodeB::SetDLScheduler (ENodeB::DLSchedulerType type)
 		  break;
 
       case ENodeB::DLScheduler_FLSEXP:
-        scheduler = new DL_FLSEXP_PacketScheduler();
+        scheduler = new DL_FLSEXP_PacketScheduler(ENodeB::DLScheduler_EXP_RULE);
         scheduler->SetMacEntity(mac);
         mac->SetDownlinkPacketScheduler(scheduler);
       break;
+
+      case ENodeB::DLScheduler_FLSLOG:
+        scheduler = new DL_FLSEXP_PacketScheduler(ENodeB::DLScheduler_LOG_RULE);
+        scheduler->SetMacEntity(mac);
+        mac->SetDownlinkPacketScheduler(scheduler);
+        break;
 
 	  default:
 	    std::cout << "ERROR: invalid scheduler type" << std::endl;

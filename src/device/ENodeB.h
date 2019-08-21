@@ -76,7 +76,8 @@ public:
 	    DLScheduler_TYPE_EXP,
 	    DLScheduler_LOG_RULE,
 	    DLScheduler_EXP_RULE,
-		DLScheduler_FLSEXP
+		DLScheduler_FLSEXP,
+		DLScheduler_FLSLOG
 	  };
 	enum ULSchedulerType
 	  {

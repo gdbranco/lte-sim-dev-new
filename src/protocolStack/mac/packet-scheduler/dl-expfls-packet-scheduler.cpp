@@ -14,17 +14,18 @@
 #include "../../../flows/MacQueue.h"
 #include "../../../utility/eesm-effective-sinr.h"
 
-DL_FLSEXP_PacketScheduler::DL_FLSEXP_PacketScheduler()
+DL_FLSEXP_PacketScheduler::DL_FLSEXP_PacketScheduler(ENodeB::DLSchedulerType scheduler)
 {
 	SetMacEntity(0);
 	CreateFlowsToSchedule();
 	m_runControlLaw = true;
 	m_subFrameCounter = 0;
+	internalMetric = scheduler;
 }
 
 DL_FLSEXP_PacketScheduler::~DL_FLSEXP_PacketScheduler()
 {
-  Destroy ();
+	Destroy();
 }
 
 void DL_FLSEXP_PacketScheduler::DoSchedule()
@@ -120,8 +121,45 @@ void DL_FLSEXP_PacketScheduler::DoStopSchedule(void)
 double DL_FLSEXP_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel)
 {
 	double metric;
+	switch (internalMetric)
+	{
+	case ENodeB::DLScheduler_EXP_RULE:
+		metric = expRuleMetric(bearer, spectralEfficiency, subChannel, m_avgHOLDelayes);
+		break;
+	case ENodeB::DLScheduler_LOG_RULE:
+		metric = logRuleMetric(bearer, spectralEfficiency);
+		break;
+	}
+}
 
-	if(bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER){
+double pfMetric(RadioBearer *bearer, double spectralEfficiency){
+	return (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
+}
+
+double logRuleMetric(RadioBearer *bearer, double spectralEfficiency){
+	double metric;
+
+	if(bearer->GetApplication()->GetApplicationType != Application::APPLICATION_TYPE_INFINITE_BUFFER){
+		QoSParameters *qos = bearer->GetQoSParameters ();
+		double HOL = bearer->GetHeadOfLinePacketDelay ();
+		double targetDelay = qos->GetMaxDelay ();
+
+		double logTerm = log (1.1 + ( (5 * HOL) / targetDelay ));
+		double weight = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
+
+		metric = logTerm * weight;
+	}else{
+		metric = pfMetric(bearer, spectralEfficiency);
+	}
+	return metric;
+}
+
+double expRuleMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel, double m_avgHOLDelayes)
+{
+	double metric;
+
+	if (bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER)
+	{
 		QoSParameters *qos = bearer->GetQoSParameters();
 		double HOL = bearer->GetHeadOfLinePacketDelay();
 		double targetDelay = qos->GetMaxDelay();
@@ -130,8 +168,10 @@ double DL_FLSEXP_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, d
 		double denominator = (1 + sqrt(m_avgHOLDelayes));
 		double weight = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
 		metric = (exp(numerator / denominator)) * weight;
-	}else{
-		metric = (spectralEfficiency * 180000.)/bearer->GetAverageTransmissionRate();
+	}
+	else
+	{
+		metric = pfMetric(bearer, spectralEfficiency);
 	}
 	return metric;
 }
@@ -149,10 +189,10 @@ double DL_FLSEXP_PacketScheduler::ComputeAverageOfHOLDelays(void)
 		flow = (*iter);
 		if (flow->GetBearer()->HasPackets())
 		{
-			if(flow->GetBearer ()->GetApplication ()->GetApplicationType () != Application::APPLICATION_TYPE_INFINITE_BUFFER)
+			if (flow->GetBearer()->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER)
 			{
-			  avgHOL += flow->GetBearer ()->GetHeadOfLinePacketDelay ();
-			  nbFlows++;
+				avgHOL += flow->GetBearer()->GetHeadOfLinePacketDelay();
+				nbFlows++;
 			}
 		}
 	}

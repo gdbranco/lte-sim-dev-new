@@ -119,6 +119,9 @@ ENodeB::DLSchedulerType selectScheduler(int sched_type)
 	case 7:
 		std::cout << "Scheduler FLS_EXP " << std::endl;
 		return ENodeB::DLScheduler_FLSEXP;
+	case 8:
+		std::cout << "Scheduler FLS_LOG" << std::endl;
+		return ENodeB::DLScheduler_FLSLOG;
 	default:
 		return ENodeB::DLScheduler_TYPE_PROPORTIONAL_FAIR;
 	}

@@ -6,7 +6,7 @@
 
 class DL_FLSEXP_PacketScheduler : public DownlinkPacketScheduler {
 public:
-	DL_FLSEXP_PacketScheduler();
+	DL_FLSEXP_PacketScheduler(ENodeB::DLSchedulerType scheduler);
 	virtual ~DL_FLSEXP_PacketScheduler();
 
 	virtual void DoSchedule (void);
@@ -23,6 +23,7 @@ private:
 	bool m_runControlLaw;
 	int m_subFrameCounter;
 	double m_avgHOLDelayes;
+	ENodeB::DLSchedulerType internalMetric;
 };
 
 #endif /* DL_FLS_PACKET_SCHEDULER_H_ */
