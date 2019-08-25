@@ -1,4 +1,18 @@
 #include "dl-expfls-packet-scheduler.h"
+#include "../mac-entity.h"
+#include "../../packet/Packet.h"
+#include "../../packet/packet-burst.h"
+#include "../../../device/NetworkNode.h"
+#include "../../../flows/radio-bearer.h"
+#include "../../../protocolStack/rrc/rrc-entity.h"
+#include "../../../flows/application/Application.h"
+#include "../../../device/ENodeB.h"
+#include "../../../protocolStack/mac/AMCModule.h"
+#include "../../../phy/lte-phy.h"
+#include "../../../core/spectrum/bandwidth-manager.h"
+#include "../../../flows/QoS/QoSForFLS.h"
+#include "../../../flows/MacQueue.h"
+#include "../../../utility/eesm-effective-sinr.h"
 
 DL_FLSEXP_PacketScheduler::DL_FLSEXP_PacketScheduler(ENodeB::DLSchedulerType scheduler)
 {
@@ -104,7 +118,7 @@ void DL_FLSEXP_PacketScheduler::DoStopSchedule(void)
 	GetMacEntity()->GetDevice()->SendPacketBurst(pb);
 }
 
-double ComputeSchedulingMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel)
+double DL_FLSEXP_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel)
 {
 	double metric;
 	switch (internalMetric)
@@ -118,14 +132,14 @@ double ComputeSchedulingMetric(RadioBearer *bearer, double spectralEfficiency, i
 	}
 }
 
-double pfMetric(RadioBearer *bearer, double spectralEfficiency){
+double DL_FLSEXP_PacketScheduler::pfMetric(RadioBearer *bearer, double spectralEfficiency){
 	return (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
 }
 
-double logRuleMetric(RadioBearer *bearer, double spectralEfficiency){
+double DL_FLSEXP_PacketScheduler::logRuleMetric(RadioBearer *bearer, double spectralEfficiency){
 	double metric;
 
-	if(bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER){
+	if(bearer->GetApplication()->GetApplicationType != Application::APPLICATION_TYPE_INFINITE_BUFFER){
 		QoSParameters *qos = bearer->GetQoSParameters ();
 		double HOL = bearer->GetHeadOfLinePacketDelay ();
 		double targetDelay = qos->GetMaxDelay ();
@@ -140,7 +154,7 @@ double logRuleMetric(RadioBearer *bearer, double spectralEfficiency){
 	return metric;
 }
 
-double expRuleMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel, double m_avgHOLDelayes)
+double DL_FLSEXP_PacketScheduler::expRuleMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel, double m_avgHOLDelayes)
 {
 	double metric;
 
@@ -162,7 +176,7 @@ double expRuleMetric(RadioBearer *bearer, double spectralEfficiency, int subChan
 	return metric;
 }
 
-double ComputeAverageOfHOLDelays(void)
+double DL_FLSEXP_PacketScheduler::ComputeAverageOfHOLDelays(void)
 {
 	double avgHOL = 0.;
 	int nbFlows = 0;
@@ -185,7 +199,7 @@ double ComputeAverageOfHOLDelays(void)
 	return avgHOL / nbFlows;
 }
 
-void RunControlLaw()
+void DL_FLSEXP_PacketScheduler::RunControlLaw()
 {
 	m_runControlLaw = false;
 	RrcEntity *rrc = GetMacEntity()->GetDevice()->GetProtocolStack()->GetRrcEntity();
@@ -244,7 +258,7 @@ void RunControlLaw()
 	}
 }
 
-void Select_FlowsToSchedule()
+void DL_FLSEXP_PacketScheduler::Select_FlowsToSchedule()
 {
 	ClearFlowsToSchedule();
 
@@ -294,7 +308,7 @@ void Select_FlowsToSchedule()
 	}
 }
 
-void UpdateDataToTransmitAndAverageDataRate(void)
+void DL_FLSEXP_PacketScheduler::UpdateDataToTransmitAndAverageDataRate(void)
 {
 	RrcEntity *rrc = GetMacEntity()->GetDevice()->GetProtocolStack()->GetRrcEntity();
 	RrcEntity::RadioBearersContainer *bearers = rrc->GetRadioBearerContainer();
