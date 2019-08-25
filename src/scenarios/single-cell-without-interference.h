@@ -133,6 +133,7 @@ QoSParameters *selectQosParameters(ENodeB::DLSchedulerType downlink_scheduler_ty
 	switch (downlink_scheduler_type)
 	{
 	case ENodeB::DLScheduler_TYPE_FLS:
+	case ENodeB::DLScheduler_FLSLOG:
 	case ENodeB::DLScheduler_FLSEXP:
 		qos = new QoSForFLS();
 		if (maxDelay == 0.1)
