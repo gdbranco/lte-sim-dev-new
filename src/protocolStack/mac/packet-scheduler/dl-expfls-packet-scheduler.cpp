@@ -139,7 +139,7 @@ double DL_FLSEXP_PacketScheduler::pfMetric(RadioBearer *bearer, double spectralE
 double DL_FLSEXP_PacketScheduler::logRuleMetric(RadioBearer *bearer, double spectralEfficiency){
 	double metric;
 
-	if(bearer->GetApplication()->GetApplicationType != Application::APPLICATION_TYPE_INFINITE_BUFFER){
+	if(bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER){
 		QoSParameters *qos = bearer->GetQoSParameters ();
 		double HOL = bearer->GetHeadOfLinePacketDelay ();
 		double targetDelay = qos->GetMaxDelay ();
