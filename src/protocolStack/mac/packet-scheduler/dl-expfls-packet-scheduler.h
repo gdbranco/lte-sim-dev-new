@@ -33,13 +33,6 @@ private:
 	int m_subFrameCounter;
 	double m_avgHOLDelayes;
 	ENodeB::DLSchedulerType internalMetric;
-	double ComputeAverageOfHOLDelays (void);
-	void RunControlLaw ();
-	void Select_FlowsToSchedule ();
-	void UpdateDataToTransmitAndAverageDataRate (void);
-	double pfMetric(RadioBearer *bearer, double spectralEfficiency);
-	double logRuleMetric(RadioBearer *bearer, double spectralEfficiency);
-	double expRuleMetric(RadioBearer *bearer, double spectralEfficiency, int subChannel, double m_avgHOLDelayes);
 
 
 };
