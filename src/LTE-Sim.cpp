@@ -62,6 +62,11 @@ int main(int argc, char *argv[])
 
 	if (argc > 1)
 	{
+		for (int i = 0; i < argc; i++)
+		{
+			std::cout << argv[i] << std::endl;
+		}
+		
 
 		/* Help */
 		if (!strcmp(argv[1], "-h") || !strcmp(argv[1], "-H") || !strcmp(argv[1], "--help") || !strcmp(argv[1], "--Help"))
