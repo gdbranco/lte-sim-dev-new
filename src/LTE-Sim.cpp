@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 			double maxDelayWeb = atof(argv[11]);
 			double maxDelayCBR = atof(argv[12]);
 			int video_bit_rate = atoi(argv[13]);
-			SingleCellWithoutInterference(radius, nbUE, pVoIP, pVideo, pBE, pCBR, sched_type, speed, maxDelayVoIP, maxDelayVideo, maxDelayWeb, maxDelayCBR, video_bit_rate);
+			SingleCellWithoutInterference(radius, nbUE, pVoIP, pVideo, pBE, pCBR, sched_type, 0, maxDelayVoIP, maxDelayVideo, maxDelayWeb, maxDelayCBR, video_bit_rate);
 		}
 		if (strcmp(argv[1], "SingleCellWithI") == 0)
 		{
