@@ -180,7 +180,8 @@ static void SingleCellWithoutInterference(double radius,
 										  double pVoIP, double pVideo, double pWEB, double pCBR,
 										  int sched_type,
 										  int speed,
-										  double maxDelay, int videoBitRate)
+										  double maxDelayVoIP, double maxDelayVideo, double maxDelayWeb, double maxDelayCBR,
+										  int videoBitRate)
 {
 	if ((pVoIP + pVideo + pWEB + pCBR) * 100 != 100)
 	{
@@ -338,7 +339,7 @@ static void SingleCellWithoutInterference(double radius,
 			VoIPApplication[voipApplication].SetStopTime(duration_time);
 
 			// create qos parameters
-			QoSParameters *qos = selectQosParameters(downlink_scheduler_type, maxDelay);
+			QoSParameters *qos = selectQosParameters(downlink_scheduler_type, maxDelayVoIP);
 			VoIPApplication[voipApplication].SetQoSParameters(qos);
 			//create classifier parameters
 			ClassifierParameters *cp = new ClassifierParameters(gw->GetIDNetworkNode(),
@@ -372,7 +373,7 @@ static void SingleCellWithoutInterference(double radius,
 			string _file(selectTraceFile(video_trace, videoBitRate));
 			VideoApplication[videoApplication].SetTraceFile(_file);
 			// create qos parameters
-			QoSParameters* qos = selectQosParameters(downlink_scheduler_type, maxDelay);
+			QoSParameters* qos = selectQosParameters(downlink_scheduler_type, maxDelayVideo);
 			VideoApplication[videoApplication].SetQoSParameters(qos);
 			//create classifier parameters
 			ClassifierParameters *cp = new ClassifierParameters(gw->GetIDNetworkNode(),
@@ -401,7 +402,7 @@ static void SingleCellWithoutInterference(double radius,
 			WEBApplication[WebApplication].SetStopTime(duration_time);
 
 			// create qos parameters
-			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelay);
+			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelayWeb);
 			WEBApplication[WebApplication].SetQoSParameters(qosParameters);
 
 			//create classifier parameters
@@ -433,7 +434,7 @@ static void SingleCellWithoutInterference(double radius,
 			CBRApplication[cbrApplication].SetSize(5);
 
 			// create qos parameters
-			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelay);
+			QoSParameters *qosParameters = selectQosParameters(downlink_scheduler_type, maxDelayCBR);
 			CBRApplication[cbrApplication].SetQoSParameters(qosParameters);
 
 			//create classifier parameters
