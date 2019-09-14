@@ -88,8 +88,6 @@ void DownlinkPacketScheduler::SelectFlowsToSchedule ()
 		  //create flow to scheduler record
 		  InsertFlowToSchedule(bearer, dataToTransmit, spectralEfficiency, cqiFeedbacks);
 		}
-	  else
-	    {}
 	}
 }
 

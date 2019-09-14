@@ -132,23 +132,28 @@ double DL_FLSEXP_PacketScheduler::ComputeSchedulingMetric(RadioBearer *bearer, d
 	}
 }
 
-double DL_FLSEXP_PacketScheduler::pfMetric(RadioBearer *bearer, double spectralEfficiency){
+double DL_FLSEXP_PacketScheduler::pfMetric(RadioBearer *bearer, double spectralEfficiency)
+{
 	return (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
 }
 
-double DL_FLSEXP_PacketScheduler::logRuleMetric(RadioBearer *bearer, double spectralEfficiency){
+double DL_FLSEXP_PacketScheduler::logRuleMetric(RadioBearer *bearer, double spectralEfficiency)
+{
 	double metric;
 
-	if(bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER){
-		QoSParameters *qos = bearer->GetQoSParameters ();
-		double HOL = bearer->GetHeadOfLinePacketDelay ();
-		double targetDelay = qos->GetMaxDelay ();
+	if (bearer->GetApplication()->GetApplicationType() != Application::APPLICATION_TYPE_INFINITE_BUFFER)
+	{
+		QoSParameters *qos = bearer->GetQoSParameters();
+		double HOL = bearer->GetHeadOfLinePacketDelay();
+		double targetDelay = qos->GetMaxDelay();
 
-		double logTerm = log (1.1 + ( (5 * HOL) / targetDelay ));
+		double logTerm = log(1.1 + ((5 * HOL) / targetDelay));
 		double weight = (spectralEfficiency * 180000.) / bearer->GetAverageTransmissionRate();
 
 		metric = logTerm * weight;
-	}else{
+	}
+	else
+	{
 		metric = pfMetric(bearer, spectralEfficiency);
 	}
 	return metric;
@@ -244,12 +249,9 @@ void DL_FLSEXP_PacketScheduler::RunControlLaw()
 			{
 				dataToTransmit = minData;
 			}
-			else
-			{
-				if (dataToTransmit < maxData)
-				{
-					dataToTransmit = maxData;
-				}
+			else if (dataToTransmit < maxData)
+			{				
+				dataToTransmit = maxData;
 			}
 		}
 		qos->UpdateQ(queueSize);
@@ -270,26 +272,14 @@ void DL_FLSEXP_PacketScheduler::Select_FlowsToSchedule()
 		//SELECT FLOWS TO SCHEDULE
 		RadioBearer *bearer = (*it);
 		QoSForFLS *qos = (QoSForFLS *)bearer->GetQoSParameters();
-		int dataToTransmit = NULL;
+		int dataToTransmit = 0;
 
 		if (bearer->HasPackets() && bearer->GetDestination()->GetNodeState() == NetworkNode::STATE_ACTIVE)
 		{
-			if (qos->GetDataToTransmit() > 0 && (bearer->GetApplication()->GetApplicationType() == Application::APPLICATION_TYPE_TRACE_BASED || bearer->GetApplication()->GetApplicationType() == Application::APPLICATION_TYPE_VOIP))
+			if (qos->GetDataToTransmit() > 0)
 			{
 				//data to transmit
 				dataToTransmit = qos->GetDataToTransmit();
-			}
-			else if (bearer->GetApplication()->GetApplicationType() == Application::APPLICATION_TYPE_CBR || bearer->GetApplication()->GetApplicationType() == Application::APPLICATION_TYPE_INFINITE_BUFFER)
-			{
-				//compute data to transmit
-				if (bearer->GetApplication()->GetApplicationType() == Application::APPLICATION_TYPE_INFINITE_BUFFER)
-				{
-					dataToTransmit = 100000;
-				}
-				else
-				{
-					dataToTransmit = bearer->GetQueueSize();
-				}
 			}
 			//compute spectral efficiency
 			ENodeB *enb = (ENodeB *)GetMacEntity()->GetDevice();
