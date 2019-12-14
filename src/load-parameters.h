@@ -33,8 +33,8 @@ static std::string path ("/home/bordim/simu/git/lte-sim-dev-new/");
 
 /* tracing */
 static bool _APP_TRACING_ = true;
-static bool _RLC_TRACING_ = false;
-static bool _MAC_TRACING_ = false;
+static bool _RLC_TRACING_ = true;
+static bool _MAC_TRACING_ = true;
 static bool _PHY_TRACING_ = false;
 
 
@@ -56,7 +56,7 @@ static bool _channel_TU_ = true;
 static bool _channel_AWGN_ = false;
 
 /* debugging */
-//#define APPLICATION_DEBUG
+#define APPLICATION_DEBUG
 //#define BEARER_DEBUG
 //#define RLC_DEBUG
 //#define MAC_QUEUE_DEBUG
