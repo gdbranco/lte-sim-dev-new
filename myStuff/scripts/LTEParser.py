@@ -2,6 +2,8 @@ from pprint import pprint
 import re
 import json
 import gzip
+import pandas as pd
+import numpy as np
 class LTEParser:
     _mapa = {
         "B": "#Bearer",
@@ -214,3 +216,74 @@ class LTEParser:
                     filename = base + file + ext
                     files[sched][ue].append(filename)
         return files
+
+class Graphics:
+    def __init__(self, graphicsbase, metrics):
+        self.graphicsbase = graphicsbase
+        self.metrics = metrics
+
+    def gputFile(self, kind, pfEnabled, newEnabled):
+        MEGAWEB = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
+        dfGPUTWEB = None
+        for sched in self.metrics[kind]["GPUTS"]:
+            MEGAWEB[sched] = np.true_divide(self.metrics[kind]["GPUTS"][sched], 1e+6)
+        if(pfEnabled and newEnabled):
+                dfGPUTWEB = pd.DataFrame({'PF': MEGAWEB[1],
+                        'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6],
+                        'EXPFLS': MEGAWEB[7], 'LOGFLS': MEGAWEB[8]},
+                        index=[10,20,30,40,50])
+        elif(pfEnabled):
+            dfGPUTWEB = pd.DataFrame({'PF': MEGAWEB[1],
+                        'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6]},
+                        index=[10,20,30,40,50])
+        elif(newEnabled):
+            dfGPUTWEB = pd.DataFrame({
+                        'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6],
+                        'EXPFLS': MEGAWEB[7], 'LOGFLS': MEGAWEB[8]},
+                        index=[10,20,30,40,50])
+        else:
+            dfGPUTWEB = pd.DataFrame({'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6]},
+                        index=[10,20,30,40,50])
+        plot = dfGPUTWEB.plot(rot=0, marker='o')
+        plot.set(xlabel="Usuários", ylabel="Vazão (MB/s)")
+        plot.legend(loc='best', bbox_to_anchor=(1.0, 0.5))
+        fig = plot.get_figure()
+        fig.savefig(self.graphicsbase + "GPUT" + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
+
+    def delayFile(self, kind, pfEnabled, newEnabled):
+        self.makeGraph(kind, "DELAY", "Latência (s)", pfEnabled, newEnabled)
+
+    def jitterFile(self, kind, pfEnabled, newEnabled):
+        self.makeGraph(kind, "JITTER", "Variância latência (s)", pfEnabled, newEnabled)
+
+    def fairnessFile(self, kind, pfEnabled, newEnabled):
+        self.makeGraph(kind, "FAIR", "Índice de justiça", pfEnabled, newEnabled)
+
+    def plrFile(self, kind, pfEnabled, newEnabled):
+        self.makeGraph(kind, "PLR", "Perda de pacotes (%)", pfEnabled, newEnabled)
+
+    def makeGraph(self, kind, metric,yLabel, pfEnabled, newEnabled):
+        df = None
+        if(pfEnabled and newEnabled):
+            df = pd.DataFrame({'PF': self.metrics[kind][metric][1],
+                            'FLS': self.metrics[kind][metric][4], 'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6],
+                            'EXPFLS': self.metrics[kind][metric][7], 'LOGFLS': self.metrics[kind][metric][8]},
+                            index=[10,20,30,40,50])
+        elif(pfEnabled):
+                df = pd.DataFrame({'PF': self.metrics[kind][metric][1],
+                            'FLS': self.metrics[kind][metric][4], 'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6]},
+                            index=[10,20,30,40,50])
+        elif(newEnabled):
+            df = pd.DataFrame({'FLS': self.metrics[kind][metric][4],
+                            'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6],
+                            'EXPFLS': self.metrics[kind][metric][7], 'LOGFLS': self.metrics[kind][metric][8]},
+                            index=[10,20,30,40,50])
+        else:
+            df = pd.DataFrame({'FLS': self.metrics[kind][metric][4],
+                                        'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6]},
+                            index=[10,20,30,40,50])
+        plot = df.plot.bar(rot=0)
+        plot.set(xlabel="Usuários", ylabel=yLabel)
+        plot.legend(loc='best', bbox_to_anchor=(1.0, 0.5))
+        fig = plot.get_figure()
+        fig.savefig(self.graphicsbase + metric + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
