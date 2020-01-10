@@ -4,6 +4,7 @@ import json
 import gzip
 import pandas as pd
 import numpy as np
+import scipy.stats
 class LTEParser:
     _mapa = {
         "B": "#Bearer",
@@ -16,98 +17,254 @@ class LTEParser:
         "SRC": "Source",
         "SIZE": "Size"
     }
-    def parse(self, inFile, flowDuration = 100):
+    def parse(self, base, graphicsbase, scheds, users, until, flowDuration = 100):
+        files = self.getFiles(base, graphicsbase, scheds, users, until)
+        metrics = {
+            "VIDEO":{
+                "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+            },
+            "VOICE":{
+                "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+            },
+            "WEB":{
+                "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+            },
+            "CBR":{
+                "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+            },
+            "GERAL": {
+            "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+            }
+        }
+
+        for sched in range(1, scheds):
+            for ue in range(10, users, 10):
+                info = self._schedParse(files[sched][ue], 100)
+                #VIDEO
+                metrics["VIDEO"]["GPUT"][sched].append(info["VIDEO"]["GPUT"])
+                metrics["VIDEO"]["FAIR"][sched].append(info["VIDEO"]["FAIR"])
+                metrics["VIDEO"]["DELAY"][sched].append(info["VIDEO"]["DELAY"])
+                metrics["VIDEO"]["JITTER"][sched].append(info["VIDEO"]["JITTER"])
+                metrics["VIDEO"]["PLR"][sched].append(info["VIDEO"]["PLR"])
+                #VOICE
+                metrics["VOICE"]["GPUT"][sched].append(info["VOIP"]["GPUT"])
+                metrics["VOICE"]["FAIR"][sched].append(info["VOIP"]["FAIR"])
+                metrics["VOICE"]["DELAY"][sched].append(info["VOIP"]["DELAY"])
+                metrics["VOICE"]["JITTER"][sched].append(info["VOIP"]["JITTER"])
+                metrics["VOICE"]["PLR"][sched].append(info["VOIP"]["PLR"])
+                #WEB
+                metrics["WEB"]["GPUT"][sched].append(info["WEB"]["GPUT"])
+                metrics["WEB"]["FAIR"][sched].append(info["WEB"]["FAIR"])
+                metrics["WEB"]["DELAY"][sched].append(info["WEB"]["DELAY"])
+                metrics["WEB"]["JITTER"][sched].append(info["WEB"]["JITTER"])
+                metrics["WEB"]["PLR"][sched].append(info["WEB"]["PLR"])
+                #CBR
+                metrics["CBR"]["GPUT"][sched].append(info["CBR"]["GPUT"])
+                metrics["CBR"]["FAIR"][sched].append(info["CBR"]["FAIR"])
+                metrics["CBR"]["DELAY"][sched].append(info["CBR"]["DELAY"])
+                metrics["CBR"]["JITTER"][sched].append(info["CBR"]["JITTER"])
+                metrics["CBR"]["PLR"][sched].append(info["CBR"]["PLR"])
+                #GERAL
+                metrics["GERAL"]["PLR"][sched].append(info["GERAL"]["PLR"])
+                
+        return metrics
+        
+    def _schedParse(self, inFiles, flowDuration):
         #VIDEO
-        videoAverages = []
-        videoFairness = []
-        videoDelay = []
-        videoJitter = []
-        videoPLR = []
-        #VOICE
-        voiceAverages = []
-        voiceFairness = []
-        voiceDelay = []
-        voiceJitter = []
-        voicePLR = []
-        #WEB
-        WebAverages = []
-        WebFairness = []
-        WebDelay = []
-        WebJitter = []
-        WebPLR = []
-        #CBR
-        CBRAverages = []
-        CBRFairness = []
-        CBRDelay = []
-        CBRJitter = []
-        CBRPLR = []
-        #GERAL
-        packetLoss = []
-        for sfile in inFile:
+        infoList = {
+            "VIDEO": {
+                "CI": [],
+                "AVERAGES": [],
+                "FAIRNESS": [],
+                "DELAYS": [],
+                "JITTERS": [],
+                "PLRS": []
+            },
+            "VOIP": {
+                "CI": [],
+                "AVERAGES": [],
+                "FAIRNESS": [],
+                "DELAYS": [],
+                "JITTERS": [],
+                "PLRS": []
+            },
+            "WEB": {
+                "CI": [],
+                "AVERAGES": [],
+                "FAIRNESS": [],
+                "DELAYS": [],
+                "JITTERS": [],
+                "PLRS": []
+            },
+            "CBR": {
+                "CI": [],
+                "AVERAGES": [],
+                "FAIRNESS": [],
+                "DELAYS": [],
+                "JITTERS": [],
+                "PLRS": []
+            },
+            "GERAL": {
+                "PLRS": []
+            }
+        }
+        for sfile in inFiles:
             content = ""
             print("Opening file: " + sfile)
             with gzip.open(sfile, 'rb') as file:
                 content = file.read()
                 content = content.decode('utf-8')
             print("\tParsing ...", end="")
-            txContent, rxContent = self._parse(content)
+            txContent, rxContent = self._singleParse(content)
             info = self.getFairnessIndex(rxContent, flowDuration)
             packetLossInfo = self.getPacketLossRatio(txContent, rxContent)
             delayInfo = self.getDelayJitter(rxContent)
             #VIDEO
-            videoAverages.append(info['VIDEO']['Average'])
-            videoFairness.append(info['VIDEO']['FairnessIndex'])
-            videoDelay.append(delayInfo['VIDEO']['Average'])
-            videoJitter.append(delayInfo['VIDEO']['StD'])
-            videoPLR.append(packetLossInfo[1]['VIDEO'])
+            infoList['VIDEO']['AVERAGES'].append(info['VIDEO']['Average'])
+            infoList['VIDEO']['FAIRNESS'].append(info['VIDEO']['FairnessIndex'])
+            infoList['VIDEO']['DELAYS'].append(delayInfo['VIDEO']['Average'])
+            infoList['VIDEO']['JITTERS'].append(delayInfo['VIDEO']['StD'])
+            infoList['VIDEO']['PLRS'].append(packetLossInfo[1]['VIDEO'])
             #VOICE
-            voiceAverages.append(info['VOIP']['Average'])
-            voiceFairness.append(info['VOIP']['FairnessIndex'])
-            voiceDelay.append(delayInfo['VOIP']['Average'])
-            voiceJitter.append(delayInfo['VOIP']['StD'])
-            voicePLR.append(packetLossInfo[1]['VOIP'])
-            #WEBBUF
-            WebAverages.append(info['WEB']['Average'])
-            WebFairness.append(info['WEB']['FairnessIndex'])
-            WebDelay.append(delayInfo['WEB']['Average'])
-            WebJitter.append(delayInfo['WEB']['StD'])
-            WebPLR.append(packetLossInfo[1]['WEB'])
+            infoList['VOIP']['AVERAGES'].append(info['VOIP']['Average'])
+            infoList['VOIP']['FAIRNESS'].append(info['VOIP']['FairnessIndex'])
+            infoList['VOIP']['DELAYS'].append(delayInfo['VOIP']['Average'])
+            infoList['VOIP']['JITTERS'].append(delayInfo['VOIP']['StD'])
+            infoList['VOIP']['PLRS'].append(packetLossInfo[1]['VOIP'])
+            #WEB
+            infoList['WEB']['AVERAGES'].append(info['WEB']['Average'])
+            infoList['WEB']['FAIRNESS'].append(info['WEB']['FairnessIndex'])
+            infoList['WEB']['DELAYS'].append(delayInfo['WEB']['Average'])
+            infoList['WEB']['JITTERS'].append(delayInfo['WEB']['StD'])
+            infoList['WEB']['PLRS'].append(packetLossInfo[1]['WEB'])
             #CBRBUF
-            CBRAverages.append(info['CBR']['Average'])
-            CBRFairness.append(info['CBR']['FairnessIndex'])
-            CBRDelay.append(delayInfo['CBR']['Average'])
-            CBRJitter.append(delayInfo['CBR']['StD'])
-            CBRPLR.append(packetLossInfo[1]['CBR'])
+            infoList['CBR']['AVERAGES'].append(info['CBR']['Average'])
+            infoList['CBR']['FAIRNESS'].append(info['CBR']['FairnessIndex'])
+            infoList['CBR']['DELAYS'].append(delayInfo['CBR']['Average'])
+            infoList['CBR']['JITTERS'].append(delayInfo['CBR']['StD'])
+            infoList['CBR']['PLRS'].append(packetLossInfo[1]['CBR'])
             #GERAL
-            packetLoss.append(packetLossInfo[0])
-        return [#VIDEO
-                (sum(videoAverages)/len(videoAverages)),
-                (sum(videoFairness)/len(videoFairness)),
-                (sum(videoDelay)/len(videoDelay)),
-                (sum(videoJitter)/len(videoJitter)),
-                (sum(videoPLR)/len(videoPLR)),
-                #VOICE
-                (sum(voiceAverages)/len(voiceAverages)),
-                (sum(voiceFairness)/len(voiceFairness)),
-                (sum(voiceDelay)/len(voiceDelay)),
-                (sum(voiceJitter)/len(voiceJitter)),
-                (sum(voicePLR)/len(voicePLR)),
-                #WEB
-                (sum(WebAverages)/len(WebAverages)),
-                (sum(WebFairness)/len(WebFairness)),
-                (sum(WebDelay)/len(WebDelay)),
-                (sum(WebJitter)/len(WebJitter)),
-                (sum(WebPLR)/len(WebPLR)),
-                #CBR
-                (sum(CBRAverages)/len(CBRAverages)),
-                (sum(CBRFairness)/len(CBRFairness)),
-                (sum(CBRDelay)/len(CBRDelay)),
-                (sum(CBRJitter)/len(CBRJitter)),
-                (sum(CBRPLR)/len(CBRPLR)),
-                #GERAL
-                packetLoss]
+            infoList['GERAL']['PLRS'].append(packetLossInfo[0])
+        
+        info = {
+            "VIDEO": {
+                "GPUT": {
+                    "MEAN": np.true_divide(np.mean(infoList['VIDEO']['AVERAGES']),1e+6),
+                    "CI": np.true_divide(self._mean_confidence_interval(infoList['VIDEO']['AVERAGES']),1e+6)
+                },
+                "FAIR": {
+                    "MEAN": np.mean(infoList['VIDEO']['FAIRNESS']),
+                    "CI": self._mean_confidence_interval(infoList['VIDEO']['FAIRNESS'])
+                },
+                "DELAY": {
+                    "MEAN": np.mean(infoList['VIDEO']['DELAYS']),
+                    "CI": self._mean_confidence_interval(infoList['VIDEO']['DELAYS'])
+                },
+                "JITTER": {
+                    "MEAN": np.mean(infoList['VIDEO']['JITTERS']),
+                    "CI": self._mean_confidence_interval(infoList['VIDEO']['JITTERS'])
+                },
+                "PLR": {
+                    "MEAN": np.mean(infoList['VIDEO']['PLRS']),
+                    "CI": self._mean_confidence_interval(infoList['VIDEO']['PLRS'])
+                }
+            },
+            "VOIP": {
+                "GPUT": {
+                    "MEAN": np.true_divide(np.mean(infoList['VOIP']['AVERAGES']),1e+6),
+                    "CI": np.true_divide(self._mean_confidence_interval(infoList['VOIP']['AVERAGES']),1e+6)
+                },
+                "FAIR": {
+                    "MEAN": np.mean(infoList['VOIP']['FAIRNESS']),
+                    "CI": self._mean_confidence_interval(infoList['VOIP']['FAIRNESS'])
+                },
+                "DELAY": {
+                    "MEAN": np.mean(infoList['VOIP']['DELAYS']),
+                    "CI": self._mean_confidence_interval(infoList['VOIP']['DELAYS'])
+                },
+                "JITTER": {
+                    "MEAN": np.mean(infoList['VOIP']['JITTERS']),
+                    "CI": self._mean_confidence_interval(infoList['VOIP']['JITTERS'])
+                },
+                "PLR": {
+                    "MEAN": np.mean(infoList['VOIP']['PLRS']),
+                    "CI": self._mean_confidence_interval(infoList['VOIP']['PLRS'])
+                }
+            },
+            "WEB": {
+                "GPUT": {
+                    "MEAN": np.true_divide(np.mean(infoList['WEB']['AVERAGES']),1e+6),
+                    "CI": np.true_divide(self._mean_confidence_interval(infoList['WEB']['AVERAGES']),1e+6)
+                },
+                "FAIR": {
+                    "MEAN": np.mean(infoList['WEB']['FAIRNESS']),
+                    "CI": self._mean_confidence_interval(infoList['WEB']['FAIRNESS'])
+                },
+                "DELAY":{
+                    "MEAN": np.mean(infoList['WEB']['DELAYS']),
+                    "CI": self._mean_confidence_interval(infoList['WEB']['DELAYS'])
+                },
+                "JITTER": {
+                    "MEAN": np.mean(infoList['WEB']['JITTERS']),
+                    "CI": self._mean_confidence_interval(infoList['WEB']['JITTERS'])
+                },
+                "PLR": {
+                    "MEAN": np.mean(infoList['WEB']['PLRS']),
+                    "CI": self._mean_confidence_interval(infoList['WEB']['PLRS'])
+                }
+            },
+            "CBR": {
+                "GPUT": {
+                    "MEAN": np.true_divide(np.mean(infoList['CBR']['AVERAGES']),1e+6),
+                    "CI": np.true_divide(self._mean_confidence_interval(infoList['CBR']['AVERAGES']),1e+6)
+                },
+                "FAIR": {
+                    "MEAN": np.mean(infoList['CBR']['FAIRNESS']),
+                    "CI": self._mean_confidence_interval(infoList['CBR']['FAIRNESS'])
+                },
+                "DELAY": {
+                    "MEAN": np.mean(infoList['CBR']['DELAYS']),
+                    "CI": self._mean_confidence_interval(infoList['CBR']['DELAYS'])
+                },
+                "JITTER": {
+                    "MEAN": np.mean(infoList['CBR']['JITTERS']),
+                    "CI": self._mean_confidence_interval(infoList['CBR']['JITTERS'])
+                },
+                "PLR": {
+                    "MEAN": np.mean(infoList['CBR']['PLRS']),
+                    "CI": self._mean_confidence_interval(infoList['CBR']['PLRS'])
+                }
+            },
+            "GERAL": {
+                "PLR": infoList['GERAL']['PLRS']
+            }
+        }
+        return info
 
-    def _parse(self, content):
+    def _mean_confidence_interval(self, data, confidence=0.95):
+        a = 1.0 * np.array(data)
+        n = len(a)
+        m, se = np.mean(a), scipy.stats.sem(a)
+        h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+        return h
+
+    def _singleParse(self, content):
         txContent = self.parseTX(content)
         rxContent = self.parseRX(content)
         print("Done")
@@ -223,32 +380,7 @@ class Graphics:
         self.metrics = metrics
 
     def gputFile(self, kind, pfEnabled, newEnabled):
-        MEGAWEB = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
-        dfGPUTWEB = None
-        for sched in self.metrics[kind]["GPUTS"]:
-            MEGAWEB[sched] = np.true_divide(self.metrics[kind]["GPUTS"][sched], 1e+6)
-        if(pfEnabled and newEnabled):
-                dfGPUTWEB = pd.DataFrame({'PF': MEGAWEB[1],
-                        'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6],
-                        'EXPFLS': MEGAWEB[7], 'LOGFLS': MEGAWEB[8]},
-                        index=[10,20,30,40,50])
-        elif(pfEnabled):
-            dfGPUTWEB = pd.DataFrame({'PF': MEGAWEB[1],
-                        'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6]},
-                        index=[10,20,30,40,50])
-        elif(newEnabled):
-            dfGPUTWEB = pd.DataFrame({
-                        'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6],
-                        'EXPFLS': MEGAWEB[7], 'LOGFLS': MEGAWEB[8]},
-                        index=[10,20,30,40,50])
-        else:
-            dfGPUTWEB = pd.DataFrame({'FLS': MEGAWEB[4], 'EXPR': MEGAWEB[5], 'LOGR': MEGAWEB[6]},
-                        index=[10,20,30,40,50])
-        plot = dfGPUTWEB.plot(rot=0, marker='o')
-        plot.set(xlabel="Usuários", ylabel="Vazão (MB/s)")
-        plot.legend(loc='best', bbox_to_anchor=(1.0, 0.5))
-        fig = plot.get_figure()
-        fig.savefig(self.graphicsbase + "GPUT" + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
+        self.makeGraph(kind, "GPUT", "Vazão (MB/s)", pfEnabled, newEnabled)
 
     def delayFile(self, kind, pfEnabled, newEnabled):
         self.makeGraph(kind, "DELAY", "Latência (s)", pfEnabled, newEnabled)
@@ -264,26 +396,33 @@ class Graphics:
 
     def makeGraph(self, kind, metric,yLabel, pfEnabled, newEnabled):
         df = None
+        _metric = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
+        for sched in self.metrics[kind][metric]:
+            _metric[sched] = [tipo["MEAN"] for tipo  in self.metrics[kind][metric][sched]]
         if(pfEnabled and newEnabled):
-            df = pd.DataFrame({'PF': self.metrics[kind][metric][1],
-                            'FLS': self.metrics[kind][metric][4], 'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6],
-                            'EXPFLS': self.metrics[kind][metric][7], 'LOGFLS': self.metrics[kind][metric][8]},
+            df = pd.DataFrame({'PF': _metric[1],
+                            'FLS': _metric[4], 'EXPR': _metric[5], 'LOGR': _metric[6],
+                            'EXPFLS': _metric[7], 'LOGFLS': _metric[8]},
                             index=[10,20,30,40,50])
         elif(pfEnabled):
-                df = pd.DataFrame({'PF': self.metrics[kind][metric][1],
-                            'FLS': self.metrics[kind][metric][4], 'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6]},
+                df = pd.DataFrame({'PF': _metric[1],
+                            'FLS': _metric[4], 'EXPR': _metric[5], 'LOGR': _metric[6]},
                             index=[10,20,30,40,50])
         elif(newEnabled):
-            df = pd.DataFrame({'FLS': self.metrics[kind][metric][4],
-                            'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6],
-                            'EXPFLS': self.metrics[kind][metric][7], 'LOGFLS': self.metrics[kind][metric][8]},
+            df = pd.DataFrame({'FLS': _metric[4],
+                            'EXPR': _metric[5], 'LOGR': _metric[6],
+                            'EXPFLS': _metric[7], 'LOGFLS': _metric[8]},
                             index=[10,20,30,40,50])
         else:
-            df = pd.DataFrame({'FLS': self.metrics[kind][metric][4],
-                                        'EXPR': self.metrics[kind][metric][5], 'LOGR': self.metrics[kind][metric][6]},
+            df = pd.DataFrame({'FLS': _metric[4],
+                                        'EXPR': _metric[5], 'LOGR': _metric[6]},
                             index=[10,20,30,40,50])
-        plot = df.plot.bar(rot=0)
+        plot = None
+        if(metric == "GPUT"):
+            plot = df.plot(rot=0, marker='o')
+        else:
+            plot = df.plot.bar(rot=0)
         plot.set(xlabel="Usuários", ylabel=yLabel)
-        plot.legend(loc='best', bbox_to_anchor=(1.0, 0.5))
+        plot.legend(loc='lower right', bbox_to_anchor=(1.2, 0))
         fig = plot.get_figure()
         fig.savefig(self.graphicsbase + metric + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
