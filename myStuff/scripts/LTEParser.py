@@ -394,6 +394,31 @@ class Graphics:
     def plrFile(self, kind, pfEnabled, newEnabled):
         self.makeGraph(kind, "PLR", "Perda de pacotes (%)", pfEnabled, newEnabled)
 
+    def plrGeralFile(self):
+        averagePacketLoss = {}
+        for key in self.metrics["GERAL"]["PLR"]:
+            averagePacketLoss[key] = []
+            for i in range(0, 5):
+                average = np.mean(self.metrics["GERAL"]["PLR"][key][i])
+                averagePacketLoss[key].append(average)
+        dfLossRatio = pd.DataFrame({'PF': averagePacketLoss[1],
+                            'FLS': averagePacketLoss[4], 'EXPR': averagePacketLoss[5], 'LOGR': averagePacketLoss[6],
+                           'EXPFLS': averagePacketLoss[7], 'LOGFLS': averagePacketLoss[8]},
+                           index=[10,20,30,40,50])
+        plot = dfLossRatio.plot.bar(rot=0)
+        
+        # Shrink current axis's height by 10% on the bottom
+        box = plot.get_position()
+        plot.set_position([box.x0, box.y0 + box.height * 0.1,
+                        box.width, box.height * 0.9])
+
+        # Put a legend below current axis
+        plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=5)
+        plot.set(xlabel="Usuários", ylabel="Perda de pacotes (%)")
+        fig = plot.get_figure()
+        fig.savefig(self.graphicsbase + "PacketLossRatio.pdf", bbox_inches='tight')
+
     def makeGraph(self, kind, metric,yLabel, pfEnabled, newEnabled):
         df = None
         _metric = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
@@ -422,7 +447,15 @@ class Graphics:
             plot = df.plot(rot=0, marker='o')
         else:
             plot = df.plot.bar(rot=0)
+
+        # Shrink current axis's height by 10% on the bottom
+        box = plot.get_position()
+        plot.set_position([box.x0, box.y0 + box.height * 0.1,
+                        box.width, box.height * 0.9])
+
+        # Put a legend below current axis
+        plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+          fancybox=True, shadow=True, ncol=5)
         plot.set(xlabel="Usuários", ylabel=yLabel)
-        plot.legend(loc='lower right', bbox_to_anchor=(1.2, 0))
         fig = plot.get_figure()
         fig.savefig(self.graphicsbase + metric + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
