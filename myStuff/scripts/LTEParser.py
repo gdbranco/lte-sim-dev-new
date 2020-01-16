@@ -5,6 +5,7 @@ import gzip
 import pandas as pd
 import numpy as np
 import scipy.stats
+import matplotlib.pyplot as plt
 class LTEParser:
     _mapa = {
         "B": "#Bearer",
@@ -413,7 +414,7 @@ class Graphics:
                         box.width, box.height * 0.9])
 
         # Put a legend below current axis
-        plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+        plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, shadow=True, ncol=5)
         plot.set(xlabel="Usuários", ylabel="Perda de pacotes (%)")
         fig = plot.get_figure()
@@ -422,40 +423,63 @@ class Graphics:
     def makeGraph(self, kind, metric,yLabel, pfEnabled, newEnabled):
         df = None
         _metric = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
+        _error = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
         for sched in self.metrics[kind][metric]:
-            _metric[sched] = [tipo["MEAN"] for tipo  in self.metrics[kind][metric][sched]]
+            _metric[sched] = [tipo["MEAN"] for tipo in self.metrics[kind][metric][sched]]
+            _error[sched] = [tipo["CI"] for tipo in self.metrics[kind][metric][sched]]
+
+
+        fig, ax = plt.subplots()
+        ind = np.arange(5)                # the x locations for the groups
+        if(metric != 'GPUT'):
+            width = 0.1                    # the width of the bars
+            _error_kw = dict(elinewidth=2,ecolor='dimgray')
+            ax.set_xlim(-width*3,len(ind)-width)
+            ax.set_xticks(ind+width)
+
+        # Plot errors on top
         if(pfEnabled and newEnabled):
-            df = pd.DataFrame({'PF': _metric[1],
-                            'FLS': _metric[4], 'EXPR': _metric[5], 'LOGR': _metric[6],
-                            'EXPFLS': _metric[7], 'LOGFLS': _metric[8]},
-                            index=[10,20,30,40,50])
+            for index,i in enumerate([1,4,5,6,7,8]):
+                if(metric == 'GPUT'):
+                    ax.plot(ind, _metric[i])
+                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                else:
+                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                legenda = ('PF','FLS','EXPR','LOGR','EXPFLS','LOGFLS')
         elif(pfEnabled):
-                df = pd.DataFrame({'PF': _metric[1],
-                            'FLS': _metric[4], 'EXPR': _metric[5], 'LOGR': _metric[6]},
-                            index=[10,20,30,40,50])
+            for index,i in enumerate([1,4,5,6]):
+                if(metric == 'GPUT'):
+                    ax.plot(ind, _metric[i])
+                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                else:
+                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                legenda = ('PF','FLS','EXPR','LOGR')
         elif(newEnabled):
-            df = pd.DataFrame({'FLS': _metric[4],
-                            'EXPR': _metric[5], 'LOGR': _metric[6],
-                            'EXPFLS': _metric[7], 'LOGFLS': _metric[8]},
-                            index=[10,20,30,40,50])
+            for index,i in enumerate([4,5,6,7,8]):
+                if(metric == 'GPUT'):
+                    ax.plot(ind, _metric[i])
+                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                else:
+                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                legenda = ('FLS','EXPR','LOGR','EXPFLS','LOGFLS')
         else:
-            df = pd.DataFrame({'FLS': _metric[4],
-                                        'EXPR': _metric[5], 'LOGR': _metric[6]},
-                            index=[10,20,30,40,50])
-        plot = None
-        if(metric == "GPUT"):
-            plot = df.plot(rot=0, marker='o')
-        else:
-            plot = df.plot.bar(rot=0)
+            for index,i in enumerate([4,5,6]):
+                if(metric == 'GPUT'):
+                    ax.plot(ind, _metric[i])
+                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                else:
+                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                legenda = ('FLS','EXPR','LOGR')
 
         # Shrink current axis's height by 10% on the bottom
-        box = plot.get_position()
-        plot.set_position([box.x0, box.y0 + box.height * 0.1,
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0 + box.height * 0.1,
                         box.width, box.height * 0.9])
 
         # Put a legend below current axis
-        plot.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+        ax.legend(legenda,loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, shadow=True, ncol=5)
-        plot.set(xlabel="Usuários", ylabel=yLabel)
-        fig = plot.get_figure()
+        ax.set(xlabel="Usuários", ylabel=yLabel)
+        ax.set_xticklabels([10,20,30,40,50])
+        fig = ax.get_figure()
         fig.savefig(self.graphicsbase + metric + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
