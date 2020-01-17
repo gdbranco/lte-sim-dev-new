@@ -431,44 +431,44 @@ class Graphics:
 
         fig, ax = plt.subplots()
         ind = np.arange(5)                # the x locations for the groups
-        if(metric != 'GPUT'):
-            width = 0.1                    # the width of the bars
-            _error_kw = dict(elinewidth=2,ecolor='dimgray')
-            ax.set_xlim(-width*3,len(ind)-width)
-            ax.set_xticks(ind+width)
+        #if(metric != 'GPUT'):
+        width = 0.1                    # the width of the bars
+        _error_kw = dict(elinewidth=2,ecolor='dimgray')
+        ax.set_xlim(-width*3,len(ind)-width)
+        ax.set_xticks(ind+width)
 
         # Plot errors on top
         if(pfEnabled and newEnabled):
             for index,i in enumerate([1,4,5,6,7,8]):
-                if(metric == 'GPUT'):
-                    ax.plot(ind, _metric[i])
-                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                else:
-                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                #if(metric == 'GPUT'):
+                #    ax.plot(ind, _metric[i])
+                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                #else:
+                ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('PF','FLS','EXPR','LOGR','EXPFLS','LOGFLS')
         elif(pfEnabled):
             for index,i in enumerate([1,4,5,6]):
-                if(metric == 'GPUT'):
-                    ax.plot(ind, _metric[i])
-                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                else:
-                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                #if(metric == 'GPUT'):
+                #    ax.plot(ind, _metric[i])
+                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                #else:
+                ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('PF','FLS','EXPR','LOGR')
         elif(newEnabled):
             for index,i in enumerate([4,5,6,7,8]):
-                if(metric == 'GPUT'):
-                    ax.plot(ind, _metric[i])
-                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                else:
-                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                #if(metric == 'GPUT'):
+                #    ax.plot(ind, _metric[i])
+                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                #else:
+                ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('FLS','EXPR','LOGR','EXPFLS','LOGFLS')
         else:
             for index,i in enumerate([4,5,6]):
-                if(metric == 'GPUT'):
-                    ax.plot(ind, _metric[i])
-                    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                else:
-                    ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
+                #if(metric == 'GPUT'):
+                #    ax.plot(ind, _metric[i])
+                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
+                #else:
+                ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('FLS','EXPR','LOGR')
 
         # Shrink current axis's height by 10% on the bottom
