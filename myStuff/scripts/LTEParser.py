@@ -26,64 +26,56 @@ class LTEParser:
                 "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
-                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuarios": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuariosAtendidos": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReq": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReqAtendidas": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
             },
-            "VOICE":{
+            "VOIP":{
                 "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
-                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuarios": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuariosAtendidos": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReq": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReqAtendidas": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
             },
             "WEB":{
                 "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
-                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuarios": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuariosAtendidos": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReq": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReqAtendidas": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
             },
             "CBR":{
                 "GPUT": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "FAIR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "DELAY": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
                 "JITTER": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
-                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuarios": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdUsuariosAtendidos": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReq": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []},
+                "qtdReqAtendidas": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
             },
             "GERAL": {
-            "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
+                "PLR": {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7:[], 8: []}
             }
         }
 
         for sched in range(1, scheds):
             for ue in range(10, users, 10):
                 info = self._schedParse(files[sched][ue], 100)
-                #VIDEO
-                metrics["VIDEO"]["GPUT"][sched].append(info["VIDEO"]["GPUT"])
-                metrics["VIDEO"]["FAIR"][sched].append(info["VIDEO"]["FAIR"])
-                metrics["VIDEO"]["DELAY"][sched].append(info["VIDEO"]["DELAY"])
-                metrics["VIDEO"]["JITTER"][sched].append(info["VIDEO"]["JITTER"])
-                metrics["VIDEO"]["PLR"][sched].append(info["VIDEO"]["PLR"])
-                #VOICE
-                metrics["VOICE"]["GPUT"][sched].append(info["VOIP"]["GPUT"])
-                metrics["VOICE"]["FAIR"][sched].append(info["VOIP"]["FAIR"])
-                metrics["VOICE"]["DELAY"][sched].append(info["VOIP"]["DELAY"])
-                metrics["VOICE"]["JITTER"][sched].append(info["VOIP"]["JITTER"])
-                metrics["VOICE"]["PLR"][sched].append(info["VOIP"]["PLR"])
-                #WEB
-                metrics["WEB"]["GPUT"][sched].append(info["WEB"]["GPUT"])
-                metrics["WEB"]["FAIR"][sched].append(info["WEB"]["FAIR"])
-                metrics["WEB"]["DELAY"][sched].append(info["WEB"]["DELAY"])
-                metrics["WEB"]["JITTER"][sched].append(info["WEB"]["JITTER"])
-                metrics["WEB"]["PLR"][sched].append(info["WEB"]["PLR"])
-                #CBR
-                metrics["CBR"]["GPUT"][sched].append(info["CBR"]["GPUT"])
-                metrics["CBR"]["FAIR"][sched].append(info["CBR"]["FAIR"])
-                metrics["CBR"]["DELAY"][sched].append(info["CBR"]["DELAY"])
-                metrics["CBR"]["JITTER"][sched].append(info["CBR"]["JITTER"])
-                metrics["CBR"]["PLR"][sched].append(info["CBR"]["PLR"])
-                #GERAL
-                metrics["GERAL"]["PLR"][sched].append(info["GERAL"]["PLR"])
-                
+                for app in metrics:
+                    for metric in metrics[app]:
+                        metrics[app][metric][sched].append(info[app][metric])
         return metrics
         
     def _schedParse(self, inFiles, flowDuration):
@@ -93,6 +85,10 @@ class LTEParser:
                 "CI": [],
                 "AVERAGES": [],
                 "FAIRNESS": [],
+                "qtdUsuarios": [],
+                "qtdUsuariosAtendidos": [],
+                "qtdReq": [],
+                "qtdReqAtendidas": [],
                 "DELAYS": [],
                 "JITTERS": [],
                 "PLRS": []
@@ -101,6 +97,10 @@ class LTEParser:
                 "CI": [],
                 "AVERAGES": [],
                 "FAIRNESS": [],
+                "qtdUsuarios": [],
+                "qtdUsuariosAtendidos": [],
+                "qtdReq": [],
+                "qtdReqAtendidas": [],
                 "DELAYS": [],
                 "JITTERS": [],
                 "PLRS": []
@@ -109,6 +109,10 @@ class LTEParser:
                 "CI": [],
                 "AVERAGES": [],
                 "FAIRNESS": [],
+                "qtdUsuarios": [],
+                "qtdUsuariosAtendidos": [],
+                "qtdReq": [],
+                "qtdReqAtendidas": [],
                 "DELAYS": [],
                 "JITTERS": [],
                 "PLRS": []
@@ -117,6 +121,10 @@ class LTEParser:
                 "CI": [],
                 "AVERAGES": [],
                 "FAIRNESS": [],
+                "qtdUsuarios": [],
+                "qtdUsuariosAtendidos": [],
+                "qtdReq": [],
+                "qtdReqAtendidas": [],
                 "DELAYS": [],
                 "JITTERS": [],
                 "PLRS": []
@@ -133,30 +141,46 @@ class LTEParser:
                 content = content.decode('utf-8')
             print("\tParsing ...", end="")
             txContent, rxContent = self._singleParse(content)
-            info = self.getFairnessIndex(rxContent, flowDuration)
+            info = self.getFairnessIndex(rxContent, txContent, flowDuration)
             packetLossInfo = self.getPacketLossRatio(txContent, rxContent)
             delayInfo = self.getDelayJitter(rxContent)
             #VIDEO
             infoList['VIDEO']['AVERAGES'].append(info['VIDEO']['Average'])
             infoList['VIDEO']['FAIRNESS'].append(info['VIDEO']['FairnessIndex'])
+            infoList['VIDEO']['qtdUsuarios'].append(info['VIDEO']['qtdUsuarios'])
+            infoList['VIDEO']['qtdUsuariosAtendidos'].append(info['VIDEO']['qtdUsuariosAtendidos'])
+            infoList['VIDEO']['qtdReq'].append(info['VIDEO']['qtdReq'])
+            infoList['VIDEO']['qtdReqAtendidas'].append(info['VIDEO']['qtdReqAtendidas'])
             infoList['VIDEO']['DELAYS'].append(delayInfo['VIDEO']['Average'])
             infoList['VIDEO']['JITTERS'].append(delayInfo['VIDEO']['StD'])
             infoList['VIDEO']['PLRS'].append(packetLossInfo[1]['VIDEO'])
-            #VOICE
+            #VOIP
             infoList['VOIP']['AVERAGES'].append(info['VOIP']['Average'])
             infoList['VOIP']['FAIRNESS'].append(info['VOIP']['FairnessIndex'])
+            infoList['VOIP']['qtdUsuarios'].append(info['VOIP']['qtdUsuarios'])
+            infoList['VOIP']['qtdUsuariosAtendidos'].append(info['VOIP']['qtdUsuariosAtendidos'])
+            infoList['VOIP']['qtdReq'].append(info['VOIP']['qtdReq'])
+            infoList['VOIP']['qtdReqAtendidas'].append(info['VOIP']['qtdReqAtendidas'])
             infoList['VOIP']['DELAYS'].append(delayInfo['VOIP']['Average'])
             infoList['VOIP']['JITTERS'].append(delayInfo['VOIP']['StD'])
             infoList['VOIP']['PLRS'].append(packetLossInfo[1]['VOIP'])
             #WEB
             infoList['WEB']['AVERAGES'].append(info['WEB']['Average'])
             infoList['WEB']['FAIRNESS'].append(info['WEB']['FairnessIndex'])
+            infoList['WEB']['qtdUsuarios'].append(info['WEB']['qtdUsuarios'])
+            infoList['WEB']['qtdUsuariosAtendidos'].append(info['WEB']['qtdUsuariosAtendidos'])
+            infoList['WEB']['qtdReq'].append(info['WEB']['qtdReq'])
+            infoList['WEB']['qtdReqAtendidas'].append(info['WEB']['qtdReqAtendidas'])
             infoList['WEB']['DELAYS'].append(delayInfo['WEB']['Average'])
             infoList['WEB']['JITTERS'].append(delayInfo['WEB']['StD'])
             infoList['WEB']['PLRS'].append(packetLossInfo[1]['WEB'])
             #CBRBUF
             infoList['CBR']['AVERAGES'].append(info['CBR']['Average'])
             infoList['CBR']['FAIRNESS'].append(info['CBR']['FairnessIndex'])
+            infoList['CBR']['qtdUsuarios'].append(info['CBR']['qtdUsuarios'])
+            infoList['CBR']['qtdUsuariosAtendidos'].append(info['CBR']['qtdUsuariosAtendidos'])
+            infoList['CBR']['qtdReq'].append(info['CBR']['qtdReq'])
+            infoList['CBR']['qtdReqAtendidas'].append(info['CBR']['qtdReqAtendidas'])
             infoList['CBR']['DELAYS'].append(delayInfo['CBR']['Average'])
             infoList['CBR']['JITTERS'].append(delayInfo['CBR']['StD'])
             infoList['CBR']['PLRS'].append(packetLossInfo[1]['CBR'])
@@ -171,12 +195,16 @@ class LTEParser:
                 },
                 "FAIR": {
                     "MEAN": np.mean(infoList['VIDEO']['FAIRNESS']),
-                    "CI": self._mean_confidence_interval(infoList['VIDEO']['FAIRNESS'])
+                    "CI": self._mean_confidence_interval(infoList['VIDEO']['FAIRNESS']),
                 },
                 "DELAY": {
                     "MEAN": np.mean(infoList['VIDEO']['DELAYS']),
                     "CI": self._mean_confidence_interval(infoList['VIDEO']['DELAYS'])
                 },
+                "qtdUsuarios": np.mean(infoList["VIDEO"]["qtdUsuarios"]),
+                "qtdUsuariosAtendidos": np.mean(infoList["VIDEO"]["qtdUsuariosAtendidos"]),
+                "qtdReq": np.mean(infoList['VIDEO']['qtdReq']),
+                "qtdReqAtendidas": np.mean(infoList['VIDEO']['qtdReqAtendidas']),
                 "JITTER": {
                     "MEAN": np.mean(infoList['VIDEO']['JITTERS']),
                     "CI": self._mean_confidence_interval(infoList['VIDEO']['JITTERS'])
@@ -195,6 +223,10 @@ class LTEParser:
                     "MEAN": np.mean(infoList['VOIP']['FAIRNESS']),
                     "CI": self._mean_confidence_interval(infoList['VOIP']['FAIRNESS'])
                 },
+                "qtdUsuarios": np.mean(infoList["VOIP"]["qtdUsuarios"]),
+                "qtdUsuariosAtendidos": np.mean(infoList["VOIP"]["qtdUsuariosAtendidos"]),
+                "qtdReq": np.mean(infoList['VOIP']['qtdReq']),
+                "qtdReqAtendidas": np.mean(infoList['VOIP']['qtdReqAtendidas']),
                 "DELAY": {
                     "MEAN": np.mean(infoList['VOIP']['DELAYS']),
                     "CI": self._mean_confidence_interval(infoList['VOIP']['DELAYS'])
@@ -217,6 +249,10 @@ class LTEParser:
                     "MEAN": np.mean(infoList['WEB']['FAIRNESS']),
                     "CI": self._mean_confidence_interval(infoList['WEB']['FAIRNESS'])
                 },
+                "qtdUsuarios": np.mean(infoList["WEB"]["qtdUsuarios"]),
+                "qtdUsuariosAtendidos": np.mean(infoList["WEB"]["qtdUsuariosAtendidos"]),
+                "qtdReq": np.mean(infoList['WEB']['qtdReq']),
+                "qtdReqAtendidas": np.mean(infoList['WEB']['qtdReqAtendidas']),
                 "DELAY":{
                     "MEAN": np.mean(infoList['WEB']['DELAYS']),
                     "CI": self._mean_confidence_interval(infoList['WEB']['DELAYS'])
@@ -239,6 +275,10 @@ class LTEParser:
                     "MEAN": np.mean(infoList['CBR']['FAIRNESS']),
                     "CI": self._mean_confidence_interval(infoList['CBR']['FAIRNESS'])
                 },
+                "qtdUsuarios": np.mean(infoList["CBR"]["qtdUsuarios"]),
+                "qtdUsuariosAtendidos": np.mean(infoList["CBR"]["qtdUsuariosAtendidos"]),
+                "qtdReq": np.mean(infoList['CBR']['qtdReq']),
+                "qtdReqAtendidas": np.mean(infoList['CBR']['qtdReqAtendidas']),
                 "DELAY": {
                     "MEAN": np.mean(infoList['CBR']['DELAYS']),
                     "CI": self._mean_confidence_interval(infoList['CBR']['DELAYS'])
@@ -275,7 +315,7 @@ class LTEParser:
         matches = re.findall(r"(^TX.+)", content, re.MULTILINE)
         if(matches == []):
             raise Exception("No matches in content for TX")
-        dictPacketType = {"CBR": [], "VOIP": [], "VIDEO": [], "INF_BUF": [], "WEB": []}
+        dictPacketType = {"CBR": [], "VOIP": [], "VIDEO": [], "WEB": []}
         keys = dictPacketType.keys()
         for match in matches:
             values = match.split(' ')
@@ -292,7 +332,7 @@ class LTEParser:
         matches = re.findall(r"(^RX.+)", content, re.MULTILINE)
         if(matches == []):
             raise Exception("No matches in content for RX")
-        dictPacketType = {"CBR": [], "VOIP": [], "VIDEO": [], "INF_BUF": [], "WEB": []}
+        dictPacketType = {"CBR": [], "VOIP": [], "VIDEO": [], "WEB": []}
         keys = dictPacketType.keys()
         for match in matches:
             values = match.split(' ')
@@ -306,7 +346,7 @@ class LTEParser:
         return json.loads(json.dumps(dictPacketType))
     
     def getPacketLossRatio(self, txContent, rxContent):
-        dictPacketType = {"CBR": [], "VOIP": [], "VIDEO": [], "INF_BUF": [], "WEB": []}
+        dictPacketType = {"CBR": [], "VOIP": [], "VIDEO": [], "WEB": []}
         tx_pkts = 0
         rx_pkts = 0
         for key in txContent:
@@ -341,26 +381,54 @@ class LTEParser:
         tputPerApp = {}
         for app in rxContent:
             tputPerApp[app] = {"Sum": 0, "Average": 0}
-            tputPerApp[app]["Sum"] = sum((float(item["Size"]) + 5)*8 for item in rxContent[app])
+            tputPerApp[app]["Sum"] = sum(((float(item["Size"]))*8 + 5) for item in rxContent[app])
             tputPerApp[app]["Average"] = (tputPerApp[app]["Sum"])/flowDuration
         return tputPerApp
     
     def getSpectralEff():
         pass
     
-    def getFairnessIndex(self, rxContent, flowDuration):
-        fairnessPerApp = {}
-        for app in rxContent:
-            fairnessPerApp[app] = {"Sum": 0, "Average": 0, "SumSquared": 0, "SquaredSum": 0, "FairnessIndex": 0}
-            if(len(rxContent[app]) > 0):
-                fairnessPerApp[app]["Sum"] = sum(float(item["Size"])*8 for item in rxContent[app])
-                fairnessPerApp[app]["Average"] = (fairnessPerApp[app]["Sum"])/flowDuration
-                fairnessPerApp[app]["SumSquared"] = sum(pow(float(item["Size"])*8,2) for item in rxContent[app])
-                fairnessPerApp[app]["SquaredSum"] = pow(fairnessPerApp[app]["Sum"], 2)
-                division = (len(rxContent[app]) * fairnessPerApp[app]["SumSquared"])
-                fairnessPerApp[app]["FairnessIndex"] = fairnessPerApp[app]["SquaredSum"] / division if division > 0 else 1
-        return fairnessPerApp
+    def getTotalUsersTXApp(self, txContent):
+        txAppUser = {}
+        for app in txContent:
+            txAppUser[app] = txAppUser.get(app, {})
+            for tx in txContent[app]:
+                bearer = tx["#Bearer"]
+                txAppUser[app][bearer] = txAppUser[app].get(bearer, [])
+        return txAppUser
+                
 
+    def getFairnessIndex(self, rxContent, txContent, flowDuration):
+        rxAppUser = {}
+        fairness = {}
+        txAppUser = self.getTotalUsersTXApp(txContent)
+        for app in rxContent:
+            rxAppUser[app] = rxAppUser.get(app, {})
+            for rx in rxContent[app]:
+                bearer = rx["#Bearer"]
+                rxAppUser[app][bearer] = rxAppUser[app].get(bearer, [])
+                rxAppUser[app][bearer].append(float(rx["Size"])*8)
+        
+        for app in rxAppUser:
+            localUserGput = []
+            for user in rxAppUser[app]:
+                localUserGput.append(sum(rxAppUser[app][user])/flowDuration)
+
+            averageAppGput = sum(localUserGput)
+            sumSquared = sum([pow(item,2) for item in localUserGput])
+            squaredSum = pow(sum(localUserGput),2)
+
+            fairness[app] = fairness.get(app, {})
+            usuariosApp = len(txAppUser[app])
+            reqsApp = len(txContent[app])
+            division = (usuariosApp * sumSquared)
+            fairness[app]["FairnessIndex"] = (squaredSum/division) if division > 0 else 0
+            fairness[app]["Average"] = averageAppGput
+            fairness[app]["qtdUsuarios"] = usuariosApp
+            fairness[app]["qtdUsuariosAtendidos"] = len(rxAppUser[app])
+            fairness[app]['qtdReq'] = reqsApp
+            fairness[app]['qtdReqAtendidas'] = len(rxContent[app])
+        return fairness
 
     def getFiles(self, base, graphicsbase, scheds, users, until):
         files = {}
@@ -394,7 +462,7 @@ class Graphics:
 
     def plrFile(self, kind, pfEnabled, newEnabled):
         self.makeGraph(kind, "PLR", "Perda de pacotes (%)", pfEnabled, newEnabled)
-
+        
     def plrGeralFile(self):
         averagePacketLoss = {}
         for key in self.metrics["GERAL"]["PLR"]:
@@ -424,14 +492,30 @@ class Graphics:
         df = None
         _metric = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
         _error = {1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: []}
+        __xticks = {}
+        __xticksAtendidos = {}
+        _xticks = []
         for sched in self.metrics[kind][metric]:
             _metric[sched] = [tipo["MEAN"] for tipo in self.metrics[kind][metric][sched]]
             _error[sched] = [tipo["CI"] for tipo in self.metrics[kind][metric][sched]]
 
+            for i in [10,20,30,40,50]:
+                __xticks[i] = __xticks.get(i, [])
+                __xticksAtendidos[i] = __xticksAtendidos.get(i, [])
+                __xticks[i].append(self.metrics[kind]["qtdUsuarios"][sched][(i//10)-1])
+                __xticksAtendidos[i].append(self.metrics[kind]["qtdUsuariosAtendidos"][sched][(i//10)-1])
+
+        for i in [10,20,30,40,50]:
+            mediaTotal = np.mean(__xticks[i])
+            mediaAtendido = np.mean(__xticksAtendidos[i])
+            if(metric == "FAIR"):
+                _xticks.append(str(int(100*(mediaAtendido/mediaTotal))) + "%(" + str(int(mediaTotal))+")")
+            else:
+                _xticks.append(str(int(mediaTotal)))
+
 
         fig, ax = plt.subplots()
         ind = np.arange(5)                # the x locations for the groups
-        #if(metric != 'GPUT'):
         width = 0.1                    # the width of the bars
         _error_kw = dict(elinewidth=2,ecolor='dimgray')
         ax.set_xlim(-width*3,len(ind)-width)
@@ -440,34 +524,18 @@ class Graphics:
         # Plot errors on top
         if(pfEnabled and newEnabled):
             for index,i in enumerate([1,4,5,6,7,8]):
-                #if(metric == 'GPUT'):
-                #    ax.plot(ind, _metric[i])
-                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                #else:
                 ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('PF','FLS','EXPR','LOGR','EXPFLS','LOGFLS')
         elif(pfEnabled):
             for index,i in enumerate([1,4,5,6]):
-                #if(metric == 'GPUT'):
-                #    ax.plot(ind, _metric[i])
-                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                #else:
                 ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('PF','FLS','EXPR','LOGR')
         elif(newEnabled):
             for index,i in enumerate([4,5,6,7,8]):
-                #if(metric == 'GPUT'):
-                #    ax.plot(ind, _metric[i])
-                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                #else:
                 ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('FLS','EXPR','LOGR','EXPFLS','LOGFLS')
         else:
             for index,i in enumerate([4,5,6]):
-                #if(metric == 'GPUT'):
-                #    ax.plot(ind, _metric[i])
-                #    ax.fill_between(ind, np.subtract(_metric[i],_error[i]), np.add(_metric[i],_error[i]), alpha=0.3)
-                #else:
                 ax.bar(ind+width*index, _metric[i], width, yerr=_error[i], error_kw=_error_kw)
                 legenda = ('FLS','EXPR','LOGR')
 
@@ -480,6 +548,6 @@ class Graphics:
         ax.legend(legenda,loc='upper center', bbox_to_anchor=(0.5, -0.15),
           fancybox=True, shadow=True, ncol=5)
         ax.set(xlabel="Usuários", ylabel=yLabel)
-        ax.set_xticklabels([10,20,30,40,50])
+        ax.set_xticklabels(_xticks)
         fig = ax.get_figure()
         fig.savefig(self.graphicsbase + metric + kind + "_PF-"+ str(pfEnabled) + "_new-" + str(newEnabled) + ".pdf", bbox_inches='tight')
