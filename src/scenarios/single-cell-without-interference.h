@@ -297,7 +297,7 @@ static void SingleCellWithoutInterference(double radius,
 											  cell,
 											  enb,
 											  0, //handover false!
-											  Mobility::CONSTANT_POSITION);
+											  Mobility::RANDOM_WAYPOINT);
 
 		std::cout << "Created UE - id " << idUE << " position " << posX << " " << posY << std::endl;
 
