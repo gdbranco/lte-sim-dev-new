@@ -517,7 +517,7 @@ class Graphics:
         fig, ax = plt.subplots()
         ind = np.arange(5)                # the x locations for the groups
         width = 0.1                    # the width of the bars
-        _error_kw = dict(elinewidth=2,ecolor='dimgray')
+        _error_kw = dict(elinewidth=2,ecolor='black')
         ax.set_xlim(-width*3,len(ind)-width)
         ax.set_xticks(ind+width)
 
